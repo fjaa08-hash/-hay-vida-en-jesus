@@ -1,0 +1,2840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#152C42">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hay Vida en Jesús">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon-192.png">
+<title>Hay Vida en Jesús — App de la Iglesia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#152C42;
+    --navy-2:#1E3F5C;
+    --gold:#C79A3E;
+    --gold-soft:#E7CD8E;
+    --wine:#7A2A2E;
+    --paper:#FAF6EC;
+    --paper-2:#F1EADA;
+    --ink:#1E2530;
+    --ink-soft:#5B6472;
+    --line:#DED3B8;
+    --card:#FFFFFF;
+    --good:#3F7A54;
+    --bad:#B3452C;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(21,44,66,.06), 0 4px 16px rgba(21,44,66,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#12181F; --paper-2:#182129; --card:#1B242E; --ink:#EDE7D8;
+      --ink-soft:#A9AFB8; --line:#33404C; --navy:#1E3F5C; --navy-2:#284D6E;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#12181F; --paper-2:#182129; --card:#1B242E; --ink:#EDE7D8;
+    --ink-soft:#A9AFB8; --line:#33404C; --navy:#1E3F5C; --navy-2:#284D6E;
+  }
+  :root[data-accent="emerald"]{ --gold:#3F9169; --gold-soft:#A8D8BE; --wine:#1F5C42; }
+  :root[data-accent="wine"]{ --gold:#B3452C; --gold-soft:#E7B39E; --wine:#6E2330; }
+  :root[data-accent="sky"]{ --gold:#2F7BAE; --gold-soft:#A9D3EA; --wine:#1E4E70; }
+  *{box-sizing:border-box;}
+  body{margin:0;color:var(--ink);font-family:'Karla',sans-serif;
+    background:
+      radial-gradient(circle at 8% 0%, rgba(199,154,62,.07), transparent 40%),
+      radial-gradient(circle at 100% 30%, rgba(122,42,46,.05), transparent 35%),
+      var(--paper);
+  }
+  h1,h2,h3,.display{font-family:'Fraunces',serif;}
+  button{font-family:inherit; -webkit-tap-highlight-color:transparent;}
+  button:active{transform:scale(.98);}
+  ::selection{background:var(--gold-soft);}
+  .card{transition:box-shadow .18s ease, transform .18s ease;}
+  .card:hover{box-shadow:0 3px 8px rgba(21,44,66,.08), 0 8px 22px rgba(21,44,66,.10);}
+  .btn{transition:.15s ease;}
+  .btn:active{transform:scale(.98);}
+
+  /* ---------- LOGIN ---------- */
+  #login{
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(199,154,62,.16), transparent 45%),
+      radial-gradient(circle at 85% 85%, rgba(122,42,46,.14), transparent 45%),
+      var(--navy);
+  }
+  .login-card{
+    max-width:420px; width:100%; background:var(--paper); border-radius:20px; padding:38px 32px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+  }
+  .login-crest{width:64px;height:64px;border-radius:50%;overflow:hidden;box-shadow:0 4px 14px rgba(21,44,66,.25);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+  .login-card h1{font-size:22px;line-height:1.25;text-align:center;margin:0 0 2px;color:var(--navy-2);font-weight:600;}
+  .login-card .sub{text-align:center;color:var(--ink-soft);font-size:13.5px;margin:0 0 28px;}
+  .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
+  .role-btn{
+    border:1.5px solid var(--line); background:var(--card); border-radius:12px; padding:14px 10px;
+    text-align:left; cursor:pointer; transition:.15s; font-family:inherit;
+  }
+  .role-btn:hover{border-color:var(--gold); transform:translateY(-1px);}
+  .role-btn.active{border-color:var(--gold); background:linear-gradient(160deg, rgba(199,154,62,.14), transparent);}
+  .role-btn .rt{font-weight:700;font-size:14.5px;color:var(--navy-2);}
+  .role-btn .rd{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .auth-switch{display:flex; background:var(--paper-2); border-radius:11px; padding:4px; margin-bottom:20px; gap:4px;}
+  .as-btn{flex:1; border:none; background:none; padding:9px 6px; border-radius:8px; font-weight:700; font-size:13px;
+    color:var(--ink-soft); cursor:pointer; transition:.15s; font-family:inherit;}
+  .as-btn.active{background:var(--card); color:var(--navy-2); box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  .auth-panel{display:none;}
+  .auth-panel.active{display:block; animation:fade .2s ease;}
+  .login-form{margin-top:0;}
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
+  .field input, .field select, .field textarea{
+    width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;font-size:14.5px;
+    background:var(--card); color:var(--ink); font-family:inherit;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--gold); outline-offset:1px; border-color:var(--gold);}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    background:var(--navy-2); color:#fff; border:none; border-radius:10px; padding:12px 18px;
+    font-weight:700; font-size:14px; cursor:pointer; width:100%; transition:.15s;
+  }
+  .btn:hover{background:var(--navy);}
+  .btn.gold{background:var(--gold); color:#382a09;}
+  .btn.gold:hover{background:#B8892F;}
+  .btn.ghost{background:transparent; color:var(--navy-2); border:1.5px solid var(--line);}
+  .btn.small{width:auto; padding:8px 14px; font-size:12.5px;}
+  .btn.danger{background:var(--bad);}
+  .err{color:var(--bad); font-size:12.5px; margin-top:6px; min-height:16px;}
+  .pin-hint{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:10px;line-height:1.5;}
+
+  /* ---------- APP SHELL ---------- */
+  #app{display:none; min-height:100vh; flex-direction:column;}
+  #app.show{display:flex;}
+  header.topbar{
+    background:var(--navy); color:#fff; padding:16px 20px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:20; box-shadow:var(--shadow);
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand .crest{width:34px;height:34px;border-radius:50%;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;flex:none;}
+  .brand .txt div:first-child{font-family:'Fraunces',serif; font-weight:600; font-size:14.5px; line-height:1.2;}
+  .brand .txt div:last-child{font-size:10.5px; opacity:.75; letter-spacing:.02em;}
+  .who{display:flex; align-items:center; gap:9px;}
+  .who .badge{background:rgba(199,154,62,.22); border:1px solid var(--gold-soft); color:var(--gold-soft);
+    font-size:11px; font-weight:700; padding:4px 10px; border-radius:99px;}
+  .logout-btn{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:7px 11px;font-size:12px;cursor:pointer;}
+  .bell-btn{position:relative; background:transparent; border:none; color:#fff; font-size:17px; cursor:pointer; padding:4px;}
+  .bell-dot{position:absolute; top:1px; right:1px; width:8px; height:8px; border-radius:50%; background:var(--wine); border:1.5px solid var(--navy);}
+  .demo-banner{transition:.2s;}
+  .demo-banner.offline{background:var(--wine); color:#fff;}
+
+  main{flex:1; max-width:920px; width:100%; margin:0 auto; padding:22px 18px 100px; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+  nav.tabs{
+    position:fixed; bottom:0; left:0; right:0; background:var(--card); border-top:1px solid var(--line);
+    display:flex; overflow-x:auto; z-index:20; box-shadow:0 -2px 14px rgba(0,0,0,.06);
+  }
+  nav.tabs::-webkit-scrollbar{display:none;}
+  nav.tabs button{
+    flex:1; min-width:74px; background:none; border:none; padding:9px 4px 8px; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--ink-soft); font-size:10.5px; font-weight:600;
+  }
+  nav.tabs button .ic{font-size:18px;}
+  nav.tabs button.active{color:var(--navy-2);}
+  nav.tabs button.active .ic{transform:translateY(-1px);}
+
+  .section-head{margin-bottom:18px;}
+  .section-head h2{font-size:22px; margin:0 0 3px; color:var(--navy-2); font-weight:600;}
+  .section-head p{margin:0; color:var(--ink-soft); font-size:13.5px;}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:14px; box-shadow:var(--shadow);}
+  .card h3{margin:0 0 10px; font-size:15.5px; color:var(--navy-2);}
+  .row{display:flex; gap:10px; flex-wrap:wrap;}
+  .row > *{flex:1; min-width:140px;}
+
+  .verse-hero{
+    background:linear-gradient(155deg, var(--navy) 0%, var(--navy-2) 60%, #35506B 100%);
+    color:#fff; border-radius:18px; padding:26px 24px; margin-bottom:18px; position:relative; overflow:hidden;
+  }
+  .verse-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;
+    background:radial-gradient(circle, rgba(199,154,62,.35), transparent 70%);}
+  .verse-hero .lbl{font-size:11px; letter-spacing:.03em; color:var(--gold-soft); font-weight:700; margin-bottom:8px;}
+  .verse-hero .txt{font-family:'Fraunces',serif; font-size:19px; line-height:1.5; font-weight:500; margin-bottom:10px; position:relative;}
+  .verse-hero .ref{font-size:13px; color:var(--gold-soft); font-weight:600;}
+
+  .stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px;}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 12px;}
+  .stat .n{font-family:'Fraunces',serif; font-size:24px; font-weight:600; color:var(--navy-2);}
+  .stat .l{font-size:11px; color:var(--ink-soft); margin-top:2px;}
+
+  .list-item{display:flex; align-items:center; justify-content:between; gap:10px; padding:11px 0; border-bottom:1px solid var(--line);}
+  .list-item:last-child{border-bottom:none;}
+  .list-item .main{flex:1;}
+  .list-item .ttl{font-weight:700; font-size:14px;}
+  .list-item .meta{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+  .avatar-thumb{width:40px; height:40px; border-radius:50%; flex:none; overflow:hidden; background:linear-gradient(160deg,var(--gold),var(--wine));
+    color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;}
+  .avatar-thumb img{width:100%; height:100%; object-fit:cover;}
+  .avatar-lg{width:84px; height:84px; border-radius:50%; overflow:hidden; background:linear-gradient(160deg,var(--gold),var(--wine));
+    color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:26px; margin:0 auto 12px; border:3px solid var(--card); box-shadow:var(--shadow);}
+  .avatar-lg img{width:100%; height:100%; object-fit:cover;}
+
+  .chip{display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:99px;}
+  .chip.gold{background:rgba(199,154,62,.16); color:#8A6A1F;}
+  .chip.wine{background:rgba(122,42,46,.12); color:var(--wine);}
+  .chip.good{background:rgba(63,122,84,.14); color:var(--good);}
+
+  .empty{text-align:center; padding:34px 16px; color:var(--ink-soft);}
+  .empty .ic{font-size:30px; margin-bottom:8px;}
+  .empty p{margin:0; font-size:13px;}
+
+  .check-row{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line);}
+  .check-row:last-child{border-bottom:none;}
+  .check-row input[type=checkbox]{width:19px;height:19px;accent-color:var(--good);}
+  .check-row .nm{flex:1; font-weight:600; font-size:14px;}
+
+  .tabline{display:flex; gap:6px; margin-bottom:16px; border-bottom:1px solid var(--line); overflow-x:auto;}
+  .tabline button{background:none;border:none;padding:9px 4px;font-size:13px;font-weight:700;color:var(--ink-soft);
+    cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent; margin-right:14px;}
+  .tabline button.active{color:var(--navy-2); border-color:var(--gold);}
+
+  .lyric-box{white-space:pre-wrap; font-family:'Fraunces',serif; font-size:16px; line-height:1.75; color:var(--ink);}
+  .song-card{cursor:pointer;}
+  .song-card .arrow{float:right; color:var(--gold);}
+
+  .fab{position:fixed; right:18px; bottom:78px; z-index:19; width:52px;height:52px;border-radius:50%;
+    background:var(--gold); color:#382a09; border:none; font-size:24px; box-shadow:0 8px 20px rgba(199,154,62,.45); cursor:pointer;}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(15,20,26,.5);display:none;align-items:flex-end;justify-content:center;z-index:40;}
+  .modal-bg.show{display:flex;}
+  .modal{background:var(--paper);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:22px 20px 28px;
+    max-height:88vh; overflow-y:auto; animation:up .2s ease;}
+  @media(min-width:640px){ .modal-bg{align-items:center;} .modal{border-radius:18px;} }
+  @keyframes up{from{transform:translateY(24px); opacity:0;} to{transform:none; opacity:1;}}
+  .modal h3{margin:0 0 16px; color:var(--navy-2);}
+  .modal-actions{display:flex; gap:10px; margin-top:16px;}
+
+  .transaction{display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid var(--line);}
+  .transaction:last-child{border-bottom:none;}
+  .transaction .amt{font-weight:700; font-family:'Fraunces',serif; font-size:15px;}
+  .transaction .amt.in{color:var(--good);}
+
+  .finance-guard{text-align:center; padding:60px 20px; color:var(--ink-soft);}
+
+  .toast{position:fixed; bottom:90px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff;
+    padding:10px 18px; border-radius:99px; font-size:13px; font-weight:600; z-index:60; box-shadow:0 6px 20px rgba(0,0,0,.25);
+    opacity:0; pointer-events:none; transition:.25s;}
+  .toast.show{opacity:1; transform:translate(-50%,-6px);}
+
+  .demo-banner{background:var(--gold-soft); color:#4a3712; font-size:11.5px; text-align:center; padding:6px 10px; font-weight:600;}
+  a.linklike{color:var(--navy-2); font-weight:700; text-decoration:underline; cursor:pointer; background:none; border:none; font-size:inherit; padding:0;}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="login">
+  <div class="login-card">
+    <div class="login-crest"><img src="data:image/png;base64,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" alt="Logo Hay Vida en Jesús" style="width:100%;height:100%;object-fit:contain;border-radius:50%;"></div>
+    <h1>Hay Vida en Jesús</h1>
+    <p class="sub">Iglesia Bautista Misionera — App de la congregación</p>
+    <p id="authLoading" style="text-align:center; font-size:12px; color:var(--gold); font-weight:700; margin:-8px 0 16px;">🔄 Conectando con la base de datos de la iglesia…</p>
+
+    <div class="auth-switch">
+      <button class="as-btn active" data-mode="login" id="modeLoginBtn">Iniciar sesión</button>
+      <button class="as-btn" data-mode="signup" id="modeSignupBtn">Crear cuenta</button>
+    </div>
+
+    <!-- LOGIN -->
+    <form id="loginForm" class="auth-panel active">
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" id="liEmail" placeholder="tucorreo@ejemplo.com" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="liPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div class="err" id="loginErr"></div>
+      <button type="submit" class="btn gold" disabled>Entrar</button>
+      <p class="pin-hint">¿Primera vez? Toca "Crear cuenta" arriba.</p>
+    </form>
+
+    <!-- SIGNUP -->
+    <form id="signupForm" class="auth-panel">
+      <div class="field">
+        <label>Nombre completo</label>
+        <input type="text" id="suName" placeholder="Ej. María Pérez" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Correo electrónico</label>
+        <input type="email" id="suEmail" placeholder="tucorreo@ejemplo.com" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="suPassword" placeholder="Mínimo 4 caracteres" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label>Fecha de nacimiento</label>
+        <input type="date" id="suBirth">
+      </div>
+      <div class="role-grid" id="roleGrid">
+        <button type="button" class="role-btn active" data-role="miembro">
+          <div class="rt">👤 Miembro</div>
+          <div class="rd">Acceso básico</div>
+        </button>
+        <button type="button" class="role-btn" data-role="diacono">
+          <div class="rt">🛡️ Diácono</div>
+          <div class="rd">Código requerido</div>
+        </button>
+        <button type="button" class="role-btn" data-role="tesoreria">
+          <div class="rt">💰 Tesorería</div>
+          <div class="rd">Código requerido</div>
+        </button>
+        <button type="button" class="role-btn" data-role="pastor">
+          <div class="rt">⛪ Pastor</div>
+          <div class="rd">Código requerido</div>
+        </button>
+      </div>
+      <div class="field" id="codeField" style="display:none;">
+        <label>Código de invitación del liderazgo</label>
+        <input type="password" id="suCode" inputmode="numeric" placeholder="••••" autocomplete="off">
+      </div>
+      <div class="err" id="signupErr"></div>
+      <button type="submit" class="btn gold" disabled>Crear mi cuenta</button>
+      <p class="pin-hint" id="pinHint">Códigos de demostración — el Pastor puede cambiarlos en Ajustes.</p>
+    </form>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app">
+  <div class="demo-banner" id="connBanner">🔎 Prototipo — tus datos quedan guardados en este dispositivo y disponibles sin internet</div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="crest"><img src="data:image/png;base64,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" alt="Logo" style="width:100%;height:100%;object-fit:contain;border-radius:50%;"></div>
+      <div class="txt">
+        <div>Hay Vida en Jesús</div>
+        <div>Iglesia Bautista Misionera</div>
+      </div>
+    </div>
+    <div class="who">
+      <button class="bell-btn" id="bellBtn" title="Recordatorios de eventos">🔔<span class="bell-dot" id="bellDot" style="display:none;"></span></button>
+      <span class="badge" id="roleBadge"></span>
+      <button class="logout-btn" id="logoutBtn">Salir</button>
+    </div>
+  </header>
+
+  <main id="main"></main>
+
+  <nav class="tabs" id="tabs"></nav>
+</div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modalBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-storage-compat.js"></script>
+<script>
+/* ============================================================
+   DATOS
+   ============================================================ */
+const STORE_KEY = "hvj_church_app_v1";
+const uid = () => Math.random().toString(36).slice(2,10);
+const todayISO = () => new Date().toISOString().slice(0,10);
+
+function seedData(){
+  return {
+    config:{
+      churchName:"Iglesia Bautista Misionera Hay Vida en Jesús",
+      pins:{ pastor:"1234", diacono:"2345", tesoreria:"3456" }
+    },
+    users:[],
+    members:[],
+    attendance:{},
+    events:[],
+    prayers:[],
+    verses:[],
+    songs:[],
+    messages:[],
+    finances:[],
+    meetings:[],
+    devotionals:[],
+    visitation:[],
+    studies:[],
+    forum:[],
+    personalStudies:[],
+    studyLog:{},
+    badges:{},
+    baptism:[],
+    topics:[
+      {id:uid(), title:"El amor cristiano", refs:"Juan 13:34-35 · 1 Corintios 13 · 1 Juan 4:7-12",
+       content:"Jesús dio un mandamiento nuevo a sus discípulos: amarse unos a otros como Él nos amó (Juan 13:34-35). Ese \"como\" es la clave — no se trata de un cariño natural, sino de un amor con la forma de la cruz: sacrificial, paciente y que busca el bien del otro por encima del propio.\n\nPablo describe ese amor en 1 Corintios 13 en medio de una carta que corrige divisiones y orgullo espiritual en la iglesia de Corinto — el contexto importa: el amor no es un poema bonito, es la corrección a una iglesia que tenía dones pero le faltaba amor. Por eso dice que sin amor, hasta los dones más impresionantes \"no soy nada\" (1 Corintios 13:2).\n\nJuan va más lejos: dice que Dios ES amor (1 Juan 4:8), y que por eso quien no ama no conoce a Dios. El amor entre hermanos no es opcional en la vida cristiana — es evidencia de que conocemos a Dios."},
+      {id:uid(), title:"El pastorado bíblico", refs:"Juan 10:11-15 · Hechos 20:28-31 · 1 Pedro 5:1-4",
+       content:"Jesús se presenta como el Buen Pastor que conoce a sus ovejas y da su vida por ellas (Juan 10:11-15) — el modelo de todo pastorado humano nace de ahí: no es una posición de poder, es un llamado a cuidar entregando la vida.\n\nEn Hechos 20, Pablo se despide de los ancianos de Éfeso y les encarga \"apacentar la iglesia del Señor\", advirtiéndoles que después de su partida entrarán \"lobos rapaces\" que no perdonarán al rebaño (Hechos 20:28-31) — el pastorado bíblico incluye proteger a la congregación, no solo enseñarla.\n\nPedro, escribiendo a pastores dispersos y bajo presión, los anima a pastorear \"no por fuerza, sino voluntariamente; no por ganancia deshonesta, sino con ánimo pronto\" y \"no como teniendo señorío sobre los que están a vuestro cuidado, sino siendo ejemplos\" (1 Pedro 5:2-3). El pastor bíblico dirige sirviendo, no dominando."},
+      {id:uid(), title:"Cómo ser iglesia", refs:"Hechos 2:42-47 · Romanos 12:4-5 · Hebreos 10:24-25",
+       content:"La primera iglesia en Jerusalén se describe con cuatro prácticas constantes: la enseñanza de los apóstoles, la comunión, el partimiento del pan y la oración (Hechos 2:42) — y el resultado fue una comunidad que compartía sus bienes y era vista con buenos ojos por todos (Hechos 2:44-47). Ser iglesia no es asistir a un evento; es pertenecer a una familia con vida compartida.\n\nPablo compara la iglesia con un cuerpo: muchos miembros, una sola cabeza, cada uno con una función distinta pero necesaria (Romanos 12:4-5). Nadie sobra y nadie puede decir que no necesita a los demás.\n\nHebreos anima a no dejar de congregarnos, como algunos acostumbraban hacer, sino a exhortarnos unos a otros — y con más razón cuanto más se acerca el día del Señor (Hebreos 10:24-25). Ser iglesia es una decisión activa de acompañar y dejarse acompañar."},
+      {id:uid(), title:"La oración", refs:"Mateo 6:5-13 · Filipenses 4:6-7 · Santiago 5:16",
+       content:"Jesús enseña a orar en contraste con dos malas costumbres de su época: orar para ser vistos, y orar repitiendo palabras vacías (Mateo 6:5-7). Luego da el modelo del Padre Nuestro: una oración breve, honesta y centrada en Dios antes que en las peticiones propias (Mateo 6:9-13).\n\nPablo, escribiendo desde la cárcel a una iglesia que amaba, dice que no nos angustiemos por nada, sino que en toda ocasión, con oración y ruego, presentemos nuestras peticiones a Dios — y promete que la paz de Dios, que sobrepasa todo entendimiento, guardará nuestro corazón (Filipenses 4:6-7).\n\nSantiago conecta la oración con la vida en comunidad: anima a confesarnos pecados unos a otros y a orar unos por otros, afirmando que la oración eficaz del justo puede mucho (Santiago 5:16). La oración cristiana no es solo privada — también es un acto de iglesia."},
+      {id:uid(), title:"El discipulado", refs:"Mateo 28:18-20 · Lucas 9:23 · 2 Timoteo 2:2",
+       content:"La Gran Comisión no dice \"hagan convertidos\", dice \"hagan discípulos\" — enseñándoles a guardar todo lo que Jesús mandó (Mateo 28:19-20). El discipulado es un proceso de toda la vida, no un evento de un solo día.\n\nJesús pone la condición con claridad: el que quiera seguirlo debe negarse a sí mismo, tomar su cruz cada día y seguirlo (Lucas 9:23) — discipulado cuesta, y es diario, no ocasional.\n\nPablo le encarga a Timoteo transmitir lo aprendido a hombres fieles que a su vez sean capaces de enseñar a otros (2 Timoteo 2:2) — el discipulado bíblico siempre se multiplica; nunca termina en una sola persona."}
+    ]
+  };
+}
+function nextDay(n){ const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+
+let DATA = seedData(); // datos temporales mientras conecta con la base de datos compartida
+let dataReady = false;
+let firebaseOk = false;
+let db = null, docRef = null, storage = null;
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA6JvhkvBtoB9brgKLrOhBOBagqohDVcVs",
+  authDomain: "hay-vida-en-jesus-aa8d1.firebaseapp.com",
+  projectId: "hay-vida-en-jesus-aa8d1",
+  storageBucket: "hay-vida-en-jesus-aa8d1.firebasestorage.app",
+  messagingSenderId: "182211178386",
+  appId: "1:182211178386:web:95bb75bfebe5a052f7db4b"
+};
+
+function initFirebase(){
+  // Salvavidas: si en 10 segundos Firebase no respondió por cualquier motivo,
+  // seguimos con los datos de este dispositivo para que la app NUNCA se quede trabada.
+  const safetyTimer = setTimeout(()=>{
+    if(!dataReady){
+      console.warn("Firebase tardó demasiado — entrando en modo local");
+      window.__lastFirebaseError = "tardó demasiado en responder (revisa tu internet o las Reglas de Firestore)";
+      DATA = loadLocalFallback();
+      firebaseOk = false;
+      onDataReady();
+    }
+  }, 10000);
+  try{
+    if(typeof firebase === "undefined"){ throw new Error("El SDK de Firebase no cargó (revisa tu conexión a internet)"); }
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    storage = firebase.storage();
+    try{ db.enablePersistence({synchronizeTabs:true}).catch(()=>{}); }catch(e){}
+
+    let listenerStarted = false;
+    // Esperamos a que Firebase confirme que YA hay una sesión (aunque sea anónima)
+    // antes de conectar Firestore — así evitamos el error "permission-denied" que
+    // ocurre si se intenta leer/escribir un instante antes de que la sesión esté lista.
+    firebase.auth().onAuthStateChanged((user)=>{
+      if(user && !listenerStarted){
+        listenerStarted = true;
+        startFirestoreListener(safetyTimer);
+      }
+    });
+    firebase.auth().signInAnonymously().catch(err=>{
+      console.error("auth anónima falló:", err);
+      window.__lastFirebaseError = "Authentication: " + (err && err.code ? err.code : err.message || err);
+      if(!listenerStarted){
+        listenerStarted = true;
+        clearTimeout(safetyTimer);
+        DATA = loadLocalFallback();
+        firebaseOk = false;
+        onDataReady();
+      }
+    });
+  }catch(e){
+    console.error("Firebase no se pudo iniciar:", e);
+    window.__lastFirebaseError = e && e.message ? e.message : String(e);
+    DATA = loadLocalFallback();
+    firebaseOk = false;
+    clearTimeout(safetyTimer);
+    onDataReady();
+  }
+}
+function startFirestoreListener(safetyTimer){
+  docRef = db.collection("church").doc("main");
+  docRef.onSnapshot((snap)=>{
+    try{
+      if(snap.exists){
+        DATA = migrate(snap.data());
+      } else {
+        DATA = seedData();
+        docRef.set(DATA).catch(err=> console.error("no se pudo sembrar la base:", err));
+      }
+      firebaseOk = true;
+    }catch(innerErr){
+      console.error("Error procesando datos de Firestore, usando respaldo local:", innerErr);
+      window.__lastFirebaseError = "Datos: " + (innerErr && innerErr.message ? innerErr.message : innerErr);
+      DATA = loadLocalFallback();
+      firebaseOk = false;
+    }
+    clearTimeout(safetyTimer);
+    onDataReady();
+  }, (err)=>{
+    console.error("Firestore onSnapshot error:", err);
+    window.__lastFirebaseError = "Firestore: " + (err && err.code ? err.code : (err && err.message ? err.message : err));
+    DATA = loadLocalFallback();
+    firebaseOk = false;
+    clearTimeout(safetyTimer);
+    onDataReady();
+  });
+}
+function loadLocalFallback(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(raw) return migrate(JSON.parse(raw));
+  }catch(e){}
+  return seedData();
+}
+function onDataReady(){
+  const wasReady = dataReady;
+  dataReady = true;
+  updateSyncBadge();
+  if(!wasReady){
+    SESSION = loadSession();
+    if(SESSION){ enterApp(); }
+    const loadingEl = document.getElementById("authLoading");
+    if(loadingEl){
+      if(firebaseOk){
+        loadingEl.style.display = "none";
+      } else {
+        loadingEl.textContent = "⚠️ Sin conexión con la base compartida" + (window.__lastFirebaseError ? (" — detalle: " + window.__lastFirebaseError) : "") + ". Puedes seguir usando la app en este dispositivo.";
+        loadingEl.style.color = "var(--wine)";
+      }
+    }
+    document.querySelectorAll("#loginForm button, #signupForm button").forEach(b=> b.disabled = false);
+  } else if(SESSION && document.getElementById("app").classList.contains("show")){
+    // Llegaron datos nuevos de otro dispositivo mientras la app está abierta: refrescamos la vista.
+    render();
+    buildTabs();
+  }
+}
+function updateSyncBadge(){
+  const el = document.getElementById('connBanner');
+  if(!el) return;
+  if(firebaseOk && navigator.onLine){
+    el.textContent = "🔄 Sincronizado en vivo con todos los miembros";
+    el.classList.remove('offline');
+  } else if(!navigator.onLine){
+    el.textContent = "📴 Sin conexión — viendo tus datos guardados en este dispositivo";
+    el.classList.add('offline');
+  } else {
+    el.textContent = "⚠️ No se pudo conectar a la base compartida — usando solo este dispositivo";
+    el.classList.add('offline');
+  }
+}
+// Rellena campos nuevos en datos guardados por versiones anteriores de la app,
+// para que nunca se rompa el inicio de sesión por falta de un campo.
+function migrate(d){
+  d.config = d.config || { churchName:"Iglesia Bautista Misionera Hay Vida en Jesús", pins:{pastor:"1234", diacono:"2345", tesoreria:"3456"} };
+  d.config.pins = d.config.pins || {pastor:"1234", diacono:"2345", tesoreria:"3456"};
+  d.users = Array.isArray(d.users) ? d.users : [];
+  d.members = d.members || [];
+  d.members.forEach(m=>{ if(m.birthDate===undefined) m.birthDate = null; if(m.photoDataUrl===undefined) m.photoDataUrl = null; });
+  d.users.forEach(u=>{ if(u.birthDate===undefined) u.birthDate = null; if(u.photoDataUrl===undefined) u.photoDataUrl = null; });
+  d.attendance = d.attendance || {};
+  d.events = d.events || [];
+  d.prayers = d.prayers || [];
+  d.verses = d.verses || [];
+  d.songs = d.songs || [];
+  d.songs.forEach(s=>{
+    if(!Array.isArray(s.dates)){ s.dates = s.date ? [s.date] : []; delete s.date; }
+  });
+  d.messages = d.messages || [];
+  d.messages.forEach(m=>{ if(!Array.isArray(m.readBy)) m.readBy = []; });
+  d.finances = d.finances || [];
+  d.finances.forEach(f=>{ if(!f.direction) f.direction = "entrada"; });
+  d.meetings = d.meetings || [];
+  d.devotionals = d.devotionals || [];
+  d.visitation = d.visitation || [];
+  d.studies = d.studies || [];
+  d.forum = d.forum || [];
+  d.personalStudies = d.personalStudies || [];
+  d.studyLog = d.studyLog || {};
+  d.badges = d.badges || {};
+  d.baptism = d.baptism || [];
+  if(!d.topics || !d.topics.length){
+    d.topics = seedData().topics;
+  }
+  d.prayers.forEach(p=>{ if(!p.reads) p.reads = {}; });
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(d)); }catch(e){}
+  return d;
+}
+function save(){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(DATA)); }catch(e){}
+  if(docRef){
+    docRef.set(DATA).catch(err=>{
+      console.error("No se pudo sincronizar:", err);
+      toast("⚠️ Este cambio no se pudo sincronizar con los demás (puede ser un archivo muy pesado). Se guardó solo en este dispositivo.");
+    });
+  }
+}
+// Cuando un archivo no se puede subir a Storage, se guarda aparte en este dispositivo
+// (nunca dentro del documento que se sincroniza) para no romper la sincronización de todo
+// lo demás por exceder el límite de tamaño de Firestore (~1 MB por documento).
+function saveLocalBlob(dataUrl){
+  const id = uid();
+  try{
+    const cache = JSON.parse(localStorage.getItem("hvj_local_blobs")||"{}");
+    cache[id] = dataUrl;
+    localStorage.setItem("hvj_local_blobs", JSON.stringify(cache));
+  }catch(e){ console.error("No se pudo guardar el archivo localmente:", e); }
+  return "local:"+id;
+}
+function resolveBlobUrl(ref){
+  if(!ref) return ref;
+  if(typeof ref === "string" && ref.startsWith("local:")){
+    try{
+      const cache = JSON.parse(localStorage.getItem("hvj_local_blobs")||"{}");
+      return cache[ref.slice(6)] || null;
+    }catch(e){ return null; }
+  }
+  return ref;
+}
+// Sube un archivo (foto, PDF, audio, video) a Firebase Storage y devuelve su URL pública,
+// para que solo esa URL (liviana) se guarde en Firestore y así sí se sincronice entre todos.
+// Si Storage no está disponible, el archivo se guarda solo en este dispositivo (ver saveLocalBlob).
+function uploadToStorage(file, folder, onDone, onError){
+  if(!storage){
+    const reader = new FileReader();
+    reader.onload = ()=> onDone(saveLocalBlob(reader.result), false);
+    reader.onerror = ()=> onError && onError(new Error("No se pudo leer el archivo"));
+    reader.readAsDataURL(file);
+    return;
+  }
+  const cleanName = (file.name||"archivo").replace(/[^a-zA-Z0-9_.-]/g,"_");
+  const path = folder + "/" + uid() + "_" + cleanName;
+  const ref = storage.ref().child(path);
+  ref.put(file).then(()=> ref.getDownloadURL()).then(url=> onDone(url, true)).catch(err=>{
+    console.error("Storage upload falló, usando respaldo local:", err);
+    const reader = new FileReader();
+    reader.onload = ()=> onDone(saveLocalBlob(reader.result), false);
+    reader.onerror = ()=> onError && onError(err);
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ============================================================
+   SESIÓN
+   ============================================================ */
+let SESSION = null; // {role, name}
+function loadSession(){
+  try{ const raw = localStorage.getItem("hvj_session"); if(raw) return JSON.parse(raw); }catch(e){}
+  return null;
+}
+function saveSession(s){ try{ localStorage.setItem("hvj_session", JSON.stringify(s)); }catch(e){} }
+function clearSession(){ try{ localStorage.removeItem("hvj_session"); }catch(e){} }
+
+const ROLE_LABELS = { pastor:"Pastor", diacono:"Diácono", tesoreria:"Tesorería", miembro:"Miembro" };
+const ROLE_ICON = { pastor:"⛪", diacono:"🛡️", tesoreria:"💰", miembro:"👤" };
+
+/* ============================================================
+   LOGIN LOGIC
+   ============================================================ */
+let selectedRole = "miembro";
+
+// --- Tabs: Iniciar sesión / Crear cuenta ---
+document.getElementById("modeLoginBtn").addEventListener("click", ()=> switchAuthMode("login"));
+document.getElementById("modeSignupBtn").addEventListener("click", ()=> switchAuthMode("signup"));
+function switchAuthMode(mode){
+  document.getElementById("modeLoginBtn").classList.toggle("active", mode==="login");
+  document.getElementById("modeSignupBtn").classList.toggle("active", mode==="signup");
+  document.getElementById("loginForm").classList.toggle("active", mode==="login");
+  document.getElementById("signupForm").classList.toggle("active", mode==="signup");
+}
+
+// --- Role picker (signup only) ---
+document.querySelectorAll("#roleGrid .role-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("#roleGrid .role-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedRole = btn.dataset.role;
+    document.getElementById("codeField").style.display = selectedRole!=="miembro" ? "block" : "none";
+  });
+});
+
+// --- Simple hash so no plain-text passwords sit in storage (demo-grade, not real crypto) ---
+function simpleHash(str){
+  let h = 0;
+  for(let i=0;i<str.length;i++){ h = (h<<5) - h + str.charCodeAt(i); h |= 0; }
+  return String(h);
+}
+
+// --- Signup ---
+document.getElementById("signupForm").addEventListener("submit", (e)=>{
+  e.preventDefault();
+  const name = document.getElementById("suName").value.trim();
+  const email = document.getElementById("suEmail").value.trim().toLowerCase();
+  const password = document.getElementById("suPassword").value;
+  const birthDate = document.getElementById("suBirth").value;
+  const code = document.getElementById("suCode").value.trim();
+  const errEl = document.getElementById("signupErr");
+  errEl.textContent = "";
+
+  if(!name || !email || !password || !birthDate){ errEl.textContent = "Completa todos los campos, incluida tu fecha de nacimiento."; return; }
+  if(password.length < 4){ errEl.textContent = "La contraseña debe tener al menos 4 caracteres."; return; }
+  if(DATA.users.some(u=>u.email===email)){ errEl.textContent = "Ya existe una cuenta con ese correo. Inicia sesión."; return; }
+  if(selectedRole !== "miembro" && code !== DATA.config.pins[selectedRole]){
+    errEl.textContent = "Código de invitación incorrecto para ese rol.";
+    return;
+  }
+
+  const newUser = { id: uid(), name, email, passHash: simpleHash(password), role: selectedRole, birthDate, photoDataUrl:null };
+  DATA.users.push(newUser);
+  syncMemberFromProfile(name, { birthDate, role: ROLE_LABELS[selectedRole] });
+  save();
+  SESSION = { role: newUser.role, name: newUser.name, email: newUser.email, userId: newUser.id };
+  saveSession(SESSION);
+  toast("Cuenta creada. ¡Bienvenido/a!");
+  enterApp();
+});
+
+// --- Login ---
+document.getElementById("loginForm").addEventListener("submit", (e)=>{
+  e.preventDefault();
+  const email = document.getElementById("liEmail").value.trim().toLowerCase();
+  const password = document.getElementById("liPassword").value;
+  const errEl = document.getElementById("loginErr");
+  errEl.textContent = "";
+  const user = DATA.users.find(u=>u.email===email);
+  if(!user || user.passHash !== simpleHash(password)){
+    errEl.textContent = "Correo o contraseña incorrectos.";
+    return;
+  }
+  SESSION = { role: user.role, name: user.name, email: user.email, userId: user.id };
+  saveSession(SESSION);
+  enterApp();
+});
+
+function enterApp(){
+  document.getElementById("login").style.display = "none";
+  document.getElementById("app").classList.add("show");
+  document.getElementById("roleBadge").textContent = ROLE_ICON[SESSION.role] + " " + ROLE_LABELS[SESSION.role];
+  buildTabs();
+  go(TABS_BY_ROLE[SESSION.role][0].id);
+  updateConnBadge();
+  startReminderWatch();
+}
+document.getElementById("logoutBtn").addEventListener("click", ()=>{
+  clearSession(); SESSION = null;
+  document.getElementById("app").classList.remove("show");
+  document.getElementById("login").style.display = "flex";
+  document.getElementById("loginForm").reset();
+  document.getElementById("signupForm").reset();
+  switchAuthMode("login");
+});
+
+/* ============================================================
+   NAV / TABS por rol
+   ============================================================ */
+const TABS_BY_ROLE = {
+  pastor:[
+    {id:"inicio", ic:"🏠", label:"Inicio"},
+    {id:"asistencia", ic:"✅", label:"Asistencia"},
+    {id:"eventos", ic:"📅", label:"Eventos"},
+    {id:"finanzas", ic:"💰", label:"Finanzas"},
+    {id:"mas", ic:"⋯", label:"Más"}
+  ],
+  diacono:[
+    {id:"inicio", ic:"🏠", label:"Inicio"},
+    {id:"asistencia", ic:"✅", label:"Asistencia"},
+    {id:"eventos", ic:"📅", label:"Eventos"},
+    {id:"mas", ic:"⋯", label:"Más"}
+  ],
+  tesoreria:[
+    {id:"inicio", ic:"🏠", label:"Inicio"},
+    {id:"finanzas", ic:"💰", label:"Finanzas"},
+    {id:"mas", ic:"⋯", label:"Más"}
+  ],
+  miembro:[
+    {id:"inicio", ic:"🏠", label:"Inicio"},
+    {id:"eventos", ic:"📅", label:"Eventos"},
+    {id:"canciones", ic:"🎵", label:"Cantos"},
+    {id:"mas", ic:"⋯", label:"Más"}
+  ]
+};
+// "Más" contents per role (secondary sections)
+const MORE_BY_ROLE = {
+  pastor:["canciones","oracion","versiculos","mensajes","reuniones","devocionales","visitacion","estudios","foro","cumpleanos","bautismo","miembros","perfil","ajustes"],
+  diacono:["canciones","oracion","versiculos","mensajes","reuniones","devocionales","visitacion","estudios","foro","cumpleanos","bautismo","miembros","perfil"],
+  tesoreria:["oracion","versiculos","mensajes","reuniones","devocionales","estudios","foro","cumpleanos","bautismo","perfil"],
+  miembro:["oracion","versiculos","mensajes","reuniones","devocionales","estudios","foro","cumpleanos","bautismo","perfil"]
+};
+const SECTION_META = {
+  inicio:{ic:"🏠",label:"Inicio"}, asistencia:{ic:"✅",label:"Asistencia"}, eventos:{ic:"📅",label:"Eventos"},
+  finanzas:{ic:"💰",label:"Finanzas"}, canciones:{ic:"🎵",label:"Cantos del servicio"}, oracion:{ic:"🙏",label:"Oración"},
+  versiculos:{ic:"📖",label:"Versículo diario"}, mensajes:{ic:"✉️",label:"Mensajes"}, miembros:{ic:"👥",label:"Miembros"},
+  ajustes:{ic:"⚙️",label:"Ajustes"}, reuniones:{ic:"🔒",label:"Reuniones privadas"},
+  devocionales:{ic:"🌿",label:"Devocional y ayuno"}, visitacion:{ic:"🚪",label:"Visitación y seguimiento"},
+  estudios:{ic:"📚",label:"Estudios bíblicos"}, foro:{ic:"💬",label:"Preguntas y debate"},
+  cumpleanos:{ic:"🎂",label:"Cumpleañeros"}, perfil:{ic:"🙍",label:"Mi perfil"},
+  bautismo:{ic:"💧",label:"Próximos a bautizar"}
+};
+const MORE_GROUPS = [
+  {label:"Vida espiritual", ids:["oracion","versiculos","devocionales","estudios","foro","cumpleanos","bautismo"]},
+  {label:"Comunidad", ids:["canciones","mensajes","reuniones"]},
+  {label:"Administración", ids:["visitacion","miembros","ajustes"]},
+  {label:"Mi cuenta", ids:["perfil"]}
+];
+
+let currentTab = "inicio";
+function buildTabs(){
+  const wrap = document.getElementById("tabs");
+  wrap.innerHTML = "";
+  TABS_BY_ROLE[SESSION.role].forEach(t=>{
+    const b = document.createElement("button");
+    b.dataset.tab = t.id;
+    b.innerHTML = `<span class="ic">${t.ic}</span><span>${t.label}</span>`;
+    b.addEventListener("click", ()=> t.id==="mas" ? openMoreMenu() : go(t.id));
+    wrap.appendChild(b);
+  });
+}
+function openMoreMenu(){
+  const items = MORE_BY_ROLE[SESSION.role];
+  const unread = unreadMsgCount();
+  const groupsHtml = MORE_GROUPS.map(g=>{
+    const groupItems = g.ids.filter(id=> items.includes(id));
+    if(!groupItems.length) return "";
+    return `
+      <div style="font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.03em; margin:14px 0 4px;">${g.label}</div>
+      ${groupItems.map(id=>`<div class="list-item"><button class="linklike" style="font-size:14.5px" onclick="closeModal(); go('${id}')">${SECTION_META[id].ic}  ${SECTION_META[id].label}${id==='mensajes' && unread>0 ? ` <span class="chip wine">${unread}</span>` : ""}</button></div>`).join("")}
+    `;
+  }).join("");
+  openModal(`<h3>Más opciones</h3>${groupsHtml}`);
+}
+function go(tab){
+  currentTab = tab;
+  document.querySelectorAll("#tabs button").forEach(b=> b.classList.toggle("active", b.dataset.tab === tab || (b.dataset.tab==="mas" && MORE_BY_ROLE[SESSION.role]?.includes(tab))));
+  render();
+}
+
+/* ============================================================
+   HELPERS UI
+   ============================================================ */
+function esc(s){ return (s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+const STUDY_BADGES = [
+  {days:7,   id:"7dias",   label:"7 días seguidos",   icon:"🥉"},
+  {days:15,  id:"15dias",  label:"15 días seguidos",  icon:"🥈"},
+  {days:30,  id:"1mes",    label:"1 mes seguido",     icon:"🥇"},
+  {days:180, id:"6meses",  label:"6 meses seguidos",  icon:"🏆"},
+  {days:365, id:"1anio",   label:"1 año seguido",     icon:"👑"}
+];
+// Marca que la persona estudió hoy y actualiza su racha de días CONTINUOS.
+// Si faltó un día, la racha se reinicia sola la próxima vez que estudie.
+function markStudiedToday(memberName){
+  DATA.studyLog = DATA.studyLog || {};
+  let log = DATA.studyLog[memberName] || {lastDate:null, currentStreak:0, longestStreak:0, earnedBadges:[]};
+  const today = todayISO();
+  if(log.lastDate === today){ return log; }
+  const yesterday = nextDay(-1);
+  log.currentStreak = (log.lastDate === yesterday) ? log.currentStreak + 1 : 1;
+  log.lastDate = today;
+  if(log.currentStreak > log.longestStreak) log.longestStreak = log.currentStreak;
+  let newBadge = null;
+  STUDY_BADGES.forEach(b=>{
+    if(log.currentStreak >= b.days && !log.earnedBadges.includes(b.id)){ log.earnedBadges.push(b.id); newBadge = b; }
+  });
+  DATA.studyLog[memberName] = log;
+  save();
+  if(newBadge){ toast(newBadge.icon+" ¡Nueva insignia! "+newBadge.label); }
+  return log;
+}
+// Racha "efectiva" para mostrar: si ya pasó más de un día sin estudiar, se ve en 0
+// aunque el reinicio real de los datos ocurra hasta el próximo estudio.
+function effectiveStreak(memberName){
+  const log = (DATA.studyLog||{})[memberName];
+  if(!log || !log.lastDate) return 0;
+  const today = todayISO(), yesterday = nextDay(-1);
+  return (log.lastDate===today || log.lastDate===yesterday) ? log.currentStreak : 0;
+}
+function initials(name){
+  return (name||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+}
+// Mantiene sincronizados los datos de perfil (cumpleaños, foto, teléfono) entre
+// la cuenta de usuario y el directorio de miembros, que es la fuente única
+// para la asistencia y los reportes (incluye a quienes no tienen la app).
+function syncMemberFromProfile(name, updates){
+  let m = DATA.members.find(x=> x.name.toLowerCase()===name.toLowerCase());
+  if(!m){ m = {id:uid(), name, phone:"", role:"Miembro", active:true}; DATA.members.push(m); }
+  Object.keys(updates||{}).forEach(k=>{ if(updates[k] !== undefined && updates[k] !== null && updates[k] !== "") m[k] = updates[k]; });
+  return m;
+}
+function fmtDate(iso){
+  const d = new Date(iso+"T00:00:00");
+  return d.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
+}
+function fmtDateShort(iso){
+  const d = new Date(iso+"T00:00:00");
+  return d.toLocaleDateString("es-ES", {day:"numeric", month:"short"});
+}
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 2200);
+}
+function openModal(html){
+  document.getElementById("modalBody").innerHTML = html;
+  document.getElementById("modalBg").classList.add("show");
+}
+function closeModal(){ document.getElementById("modalBg").classList.remove("show"); }
+document.getElementById("modalBg").addEventListener("click", e=>{ if(e.target.id==="modalBg") closeModal(); });
+
+function can(perm){
+  const r = SESSION.role;
+  const map = {
+    editAttendance: ["pastor","diacono"],
+    editEvents: ["pastor","diacono"],
+    editSongs: ["pastor","diacono"],
+    editVerses: ["pastor","diacono"],
+    sendMessages: ["pastor","diacono"],
+    manageMembers: ["pastor","diacono"],
+    deleteMembers: ["pastor"],
+    editMeetings: ["pastor","diacono"],
+    editDevotionals: ["pastor","diacono"],
+    editVisitation: ["pastor","diacono"],
+    editStudies: ["pastor"],
+    editTopics: ["pastor","diacono"],
+    editBaptism: ["pastor","diacono"],
+    manageFinance: ["pastor","tesoreria"],
+    manageAnsweredPrayer: ["pastor","diacono"],
+    settings: ["pastor"]
+  };
+  return (map[perm]||[]).includes(r);
+}
+
+/* ============================================================
+   RENDER PRINCIPAL
+   ============================================================ */
+function render(){
+  const m = document.getElementById("main");
+  switch(currentTab){
+    case "inicio": m.innerHTML = viewInicio(); afterInicio(); break;
+    case "asistencia": m.innerHTML = viewAsistencia(); afterAsistencia(); break;
+    case "eventos": m.innerHTML = viewEventos(); break;
+    case "finanzas": m.innerHTML = viewFinanzas(); break;
+    case "canciones": m.innerHTML = viewCanciones(); break;
+    case "oracion": m.innerHTML = viewOracion(); break;
+    case "versiculos": m.innerHTML = viewVersiculos(); break;
+    case "mensajes": m.innerHTML = viewMensajes(); break;
+    case "miembros": m.innerHTML = viewMiembros(); break;
+    case "reuniones": m.innerHTML = viewReuniones(); break;
+    case "devocionales": m.innerHTML = viewDevocionales(); break;
+    case "visitacion": m.innerHTML = viewVisitacion(); break;
+    case "estudios": m.innerHTML = viewEstudios(); break;
+    case "foro": m.innerHTML = viewForo(); break;
+    case "cumpleanos": m.innerHTML = viewCumpleanos(); break;
+    case "bautismo": m.innerHTML = viewBautismo(); break;
+    case "perfil": m.innerHTML = viewPerfil(); break;
+    case "ajustes": m.innerHTML = viewAjustes(); break;
+    default: m.innerHTML = "";
+  }
+}
+
+/* ---------- INICIO ---------- */
+function viewInicio(){
+  const verse = [...DATA.verses].sort((a,b)=> b.date.localeCompare(a.date))[0];
+  const upcoming = DATA.events.filter(e=> e.date >= todayISO()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,2);
+  const prayerCount = DATA.prayers.filter(p=>!p.answered).length;
+  const attToday = (DATA.attendance[todayISO()]||[]).length;
+  const bdays = todaysBirthdays();
+  const myBday = bdays.find(m=> m.name.toLowerCase()===SESSION.name.toLowerCase());
+  const otherBdays = bdays.filter(m=> m.name.toLowerCase()!==SESSION.name.toLowerCase());
+
+  let stats = "";
+  if(SESSION.role !== "miembro"){
+    stats = `
+    <div class="stat-grid">
+      <div class="stat"><div class="n">${DATA.members.filter(m=>m.active).length}</div><div class="l">Miembros activos</div></div>
+      <div class="stat"><div class="n">${attToday}</div><div class="l">Presentes hoy</div></div>
+      <div class="stat"><div class="n">${prayerCount}</div><div class="l">Motivos en oración</div></div>
+    </div>`;
+  }
+
+  return `
+    <div class="section-head">
+      <h2>Hola, ${esc(SESSION.name.split(" ")[0])} 👋</h2>
+      <p>${DATA.config.churchName}</p>
+    </div>
+    ${myBday ? `
+    <div class="verse-hero" style="text-align:center;">
+      <div class="avatar-lg">${resolveBlobUrl(myBday.photoDataUrl) ? `<img src="${resolveBlobUrl(myBday.photoDataUrl)}" alt="">` : initials(myBday.name)}</div>
+      <div class="lbl" style="text-align:center;">🎉 ¡ES TU DÍA!</div>
+      <div class="txt" style="text-align:center;">${BIRTHDAY_MSG.replace("{nombre}", esc(myBday.name.split(" ")[0]))}</div>
+    </div>` : otherBdays.length ? `
+    <div class="card" style="border-color:var(--gold);">
+      <h3>🎂 Hoy cumple(n) años</h3>
+      ${otherBdays.map(m=>`<div class="list-item"><div class="avatar-thumb">${resolveBlobUrl(m.photoDataUrl) ? `<img src="${resolveBlobUrl(m.photoDataUrl)}" alt="">`:initials(m.name)}</div><div class="main"><div class="ttl">${esc(m.name)}</div></div></div>`).join("")}
+      <p style="font-size:12.5px; color:var(--ink-soft); margin-top:8px;">¡No olvides felicitarlo(a)! 💛</p>
+    </div>` : ""}
+    ${verse ? `
+    <div class="verse-hero">
+      <div class="lbl">VERSÍCULO DE HOY</div>
+      <div class="txt">"${esc(verse.text)}"</div>
+      <div class="ref">${esc(verse.ref)}</div>
+    </div>` : ""}
+    ${stats}
+    <div class="card">
+      <h3>Próximos eventos</h3>
+      ${upcoming.length ? upcoming.map(e=>`
+        <div class="list-item">
+          <div class="main">
+            <div class="ttl">${esc(e.title)}</div>
+            <div class="meta">${fmtDate(e.date)} · ${esc(e.time)} · ${esc(e.place)}</div>
+          </div>
+        </div>`).join("") : `<div class="empty"><div class="ic">📅</div><p>No hay eventos próximos por ahora.</p></div>`}
+      <div style="margin-top:10px;"><button class="btn ghost small" onclick="go('eventos')">Ver todos los eventos</button></div>
+    </div>
+    <div class="card">
+      <h3>Cantos para el próximo servicio</h3>
+      ${DATA.songs.filter(s=> (s.dates||[]).some(d=>d>=todayISO())).slice(0,3).map(s=>`
+        <div class="list-item"><div class="main"><div class="ttl">🎵 ${esc(s.title)}</div></div></div>
+      `).join("") || `<div class="empty"><div class="ic">🎵</div><p>Aún no se han subido cantos.</p></div>`}
+      <div style="margin-top:10px;"><button class="btn ghost small" onclick="go('canciones')">Ver cancionero</button></div>
+    </div>
+  `;
+}
+function afterInicio(){}
+
+/* ---------- ASISTENCIA ---------- */
+let attDate = todayISO();
+function viewAsistencia(){
+  if(!can("editAttendance")){
+    return `<div class="finance-guard"><div style="font-size:32px;">🔒</div><p>Esta sección es solo para el Pastor y los Diáconos.</p></div>`;
+  }
+  const present = new Set(DATA.attendance[attDate]||[]);
+  const active = DATA.members.filter(m=>m.active);
+  const absent = active.filter(m=> !present.has(m.id));
+  const accountNames = new Set(DATA.users.map(u=>u.name.toLowerCase()));
+  const acctTag = (m)=> accountNames.has(m.name.toLowerCase())
+    ? '<span class="chip good" style="margin-left:6px;">📲 Con app</span>'
+    : '<span class="chip gold" style="margin-left:6px;">📋 Sin app</span>';
+  return `
+    <div class="section-head"><h2>Asistencia</h2><p>Lista única con todos los miembros: los que tienen la app y los que no.</p></div>
+    <div class="card">
+      <div class="field"><label>Fecha del servicio</label>
+        <input type="date" id="attDateInput" value="${attDate}">
+      </div>
+      ${active.map(m=>`
+        <div class="check-row">
+          <input type="checkbox" data-id="${m.id}" ${present.has(m.id)?"checked":""}>
+          <div class="nm">${esc(m.name)} ${acctTag(m)}</div>
+        </div>`).join("") || `<div class="empty"><p>Agrega miembros primero en la sección Miembros.</p></div>`}
+      <div style="margin-top:14px; color:var(--ink-soft); font-size:12.5px;">
+        <span id="presentCount">${present.size}</span> de ${active.length} presentes
+      </div>
+    </div>
+    <div class="card">
+      <h3>🙈 Ausentes del ${fmtDateShort(attDate)}</h3>
+      ${absent.length ? `
+        <button class="btn ghost small" style="margin-bottom:10px;" onclick="messageAllAbsent()">✉️ Enviar mensaje (app) a todos los ausentes</button>
+        ${absent.map(m=>`
+          <div class="list-item">
+            <div class="main"><div class="ttl">${esc(m.name)} ${acctTag(m)}</div><div class="meta">${m.phone? "📱 "+esc(m.phone) : "Sin teléfono registrado"}</div></div>
+            <div style="display:flex; gap:6px;">
+              ${accountNames.has(m.name.toLowerCase()) ? `<button class="btn ghost small" onclick="messageAbsent('${esc(m.name).replace(/'/g,"\\'")}')">✉️ App</button>` : ""}
+              ${m.phone ? `<button class="btn ghost small" onclick="whatsappAbsent('${esc(m.name).replace(/'/g,"\\'")}','${esc(m.phone).replace(/'/g,"\\'")}')">📲 WhatsApp</button>` : ""}
+            </div>
+          </div>
+        `).join("")}
+      ` : `<div class="empty"><div class="ic">🎉</div><p>Nadie falta — o aún no has marcado la asistencia.</p></div>`}
+    </div>
+  `;
+}
+const ABSENT_TEMPLATE = "Hola {nombre}, te extrañamos en el servicio de hoy 💛 ¿Cómo estás? Cualquier cosa que necesites, aquí estamos para ti.";
+function whatsappAbsent(name, phone){
+  const digits = (phone||"").replace(/[^0-9]/g,"");
+  if(!digits){ toast("Ese hermano no tiene un teléfono válido registrado"); return; }
+  const text = ABSENT_TEMPLATE.replace("{nombre}", name.split(" ")[0]);
+  window.open("https://wa.me/"+digits+"?text="+encodeURIComponent(text), "_blank");
+}
+function messageAbsent(name){
+  const body = ABSENT_TEMPLATE.replace("{nombre}", name.split(" ")[0]);
+  DATA.messages.unshift({id:uid(), from:SESSION.name, to:name, subject:"¿Cómo estás?", body, date:todayISO()});
+  save(); toast("Mensaje enviado a "+name);
+  render();
+}
+function messageAllAbsent(){
+  const present = new Set(DATA.attendance[attDate]||[]);
+  const absent = DATA.members.filter(m=>m.active && !present.has(m.id));
+  if(!absent.length){ toast("No hay ausentes que notificar"); return; }
+  absent.forEach(m=>{
+    const body = ABSENT_TEMPLATE.replace("{nombre}", m.name.split(" ")[0]);
+    DATA.messages.unshift({id:uid(), from:SESSION.name, to:m.name, subject:"¿Cómo estás?", body, date:todayISO()});
+  });
+  save(); toast("Mensaje enviado a "+absent.length+" hermano(s)");
+  render();
+}
+function afterAsistencia(){
+  const dateInput = document.getElementById("attDateInput");
+  if(!dateInput) return;
+  dateInput.addEventListener("change", ()=>{ attDate = dateInput.value; render(); });
+  document.querySelectorAll('.check-row input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener("change", ()=>{
+      const set = new Set(DATA.attendance[attDate]||[]);
+      cb.checked ? set.add(cb.dataset.id) : set.delete(cb.dataset.id);
+      DATA.attendance[attDate] = [...set];
+      save();
+      render();
+    });
+  });
+}
+
+/* ---------- EVENTOS ---------- */
+function viewEventos(){
+  const list = [...DATA.events].sort((a,b)=>a.date.localeCompare(b.date));
+  return `
+    <div class="section-head"><h2>Eventos</h2><p>Actividades de la semana y del mes.</p></div>
+    ${can("editEvents") ? `<button class="btn gold" style="margin-bottom:14px;" onclick="openEventForm()">+ Nuevo evento</button>` : ""}
+    ${list.map(e=>`
+      <div class="card">
+        <div class="row" style="align-items:flex-start;">
+          <div>
+            <span class="chip gold">${fmtDateShort(e.date)}</span>
+            <h3 style="margin-top:8px;">${esc(e.title)}</h3>
+            <div class="meta" style="color:var(--ink-soft); font-size:12.5px; margin-bottom:6px;">🕑 ${esc(e.time)} · 📍 ${esc(e.place)}</div>
+            <div style="font-size:13.5px;">${esc(e.desc)}</div>
+          </div>
+        </div>
+        ${can("editEvents") ? `<div style="margin-top:12px;"><button class="btn ghost small" onclick="deleteEvent('${e.id}')">Eliminar</button></div>` : ""}
+      </div>
+    `).join("") || `<div class="empty"><div class="ic">📅</div><p>No hay eventos registrados todavía.</p></div>`}
+  `;
+}
+function openEventForm(){
+  openModal(`
+    <h3>Nuevo evento</h3>
+    <div class="field"><label>Título</label><input id="evTitle" placeholder="Ej. Servicio Dominical"></div>
+    <div class="row">
+      <div class="field"><label>Fecha</label><input type="date" id="evDate" value="${todayISO()}"></div>
+      <div class="field"><label>Hora</label><input id="evTime" placeholder="10:00 AM"></div>
+    </div>
+    <div class="field"><label>Lugar</label><input id="evPlace" placeholder="Templo principal"></div>
+    <div class="field"><label>Descripción</label><textarea id="evDesc" rows="3" placeholder="Detalles del evento"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveEvent()">Guardar evento</button>
+    </div>
+  `);
+}
+function saveEvent(){
+  const title = document.getElementById("evTitle").value.trim();
+  const date = document.getElementById("evDate").value;
+  const time = document.getElementById("evTime").value.trim();
+  const place = document.getElementById("evPlace").value.trim();
+  const desc = document.getElementById("evDesc").value.trim();
+  if(!title || !date){ toast("Falta el título o la fecha"); return; }
+  DATA.events.push({id:uid(), title, date, time, place, desc, remind:true});
+  save(); closeModal(); toast("Evento agregado"); render();
+}
+function deleteEvent(id){
+  DATA.events = DATA.events.filter(e=>e.id!==id); save(); toast("Evento eliminado"); render();
+}
+
+/* ---------- CANCIONES ---------- */
+let cancionesTab = "servicio";
+function viewCanciones(){
+  const upcoming = DATA.songs.filter(s=> (s.dates||[]).some(d=> d>=todayISO()))
+    .sort((a,b)=> Math.min(...a.dates.filter(d=>d>=todayISO())) > 0 ? a.title.localeCompare(b.title) : 0);
+  const bank = [...DATA.songs].sort((a,b)=> a.title.localeCompare(b.title));
+  const list = cancionesTab==="servicio" ? upcoming : bank;
+  return `
+    <div class="section-head"><h2>Cantos del servicio</h2><p>Letras disponibles sin internet una vez cargadas. Banco permanente — nunca se duplican.</p></div>
+    <div class="tabline">
+      <button class="${cancionesTab==='servicio'?'active':''}" onclick="setCancionesTab('servicio')">Próximo servicio</button>
+      <button class="${cancionesTab==='banco'?'active':''}" onclick="setCancionesTab('banco')">📚 Banco de cantos (${bank.length})</button>
+    </div>
+    ${can("editSongs") ? `<div class="row" style="margin-bottom:14px;">
+        <button class="btn gold" onclick="openSongForm()">+ Subir canto nuevo</button>
+        ${bank.length ? `<button class="btn ghost" onclick="openAssignFromBank()">📚 Programar del banco</button>` : ""}
+      </div>` : ""}
+    ${list.map(s=>{
+      const nextDates = (s.dates||[]).filter(d=> cancionesTab==="servicio" ? d>=todayISO() : true).sort();
+      return `
+      <div class="card song-card" onclick="openSong('${s.id}')">
+        <span class="arrow">›</span>
+        <h3 style="margin:0;">🎵 ${esc(s.title)}</h3>
+        <div style="font-size:12.5px; color:var(--ink-soft); margin-top:3px;">${s.author? esc(s.author)+" · ":""}${nextDates.length? "Programado: "+nextDates.map(fmtDateShort).join(", ") : "Sin fecha programada"}</div>
+        ${can("editSongs") ? `<button class="btn ghost small" style="margin-top:10px;" onclick="event.stopPropagation(); deleteSong('${s.id}')">🗑️ Eliminar del banco</button>` : ""}
+      </div>
+    `;}).join("") || `<div class="empty"><div class="ic">🎵</div><p>${cancionesTab==='servicio' ? "No hay cantos programados para los próximos servicios." : "El director aún no ha subido cantos."}</p></div>`}
+  `;
+}
+function setCancionesTab(t){ cancionesTab = t; render(); }
+function openSong(id){
+  const s = DATA.songs.find(x=>x.id===id); if(!s) return;
+  const dates = (s.dates||[]).slice().sort();
+  openModal(`
+    <h3>🎵 ${esc(s.title)}</h3>
+    <div style="font-size:12.5px; color:var(--ink-soft); margin-bottom:14px;">${s.author? esc(s.author)+" · ":""}${dates.length? "Programado: "+dates.map(fmtDateShort).join(", ") : "Sin fecha programada aún"}</div>
+    <div class="lyric-box">${esc(s.lyrics)}</div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cerrar</button>
+      ${can("editSongs") ? `<button class="btn danger" onclick="deleteSong('${s.id}')">Eliminar del banco</button>` : ""}
+    </div>
+  `);
+}
+function deleteSong(id){ DATA.songs = DATA.songs.filter(s=>s.id!==id); save(); closeModal(); toast("Canto eliminado del banco"); render(); }
+function openSongForm(){
+  openModal(`
+    <h3>Subir canto</h3>
+    <p style="font-size:11.5px; color:var(--ink-soft); margin-top:-6px;">Si el título ya existe en el banco, solo se agregará la nueva fecha — no se duplicará la letra.</p>
+    <div class="field"><label>Título</label><input id="sgTitle" placeholder="Ej. Sublime Gracia"></div>
+    <div class="field"><label>Autor (opcional)</label><input id="sgAuthor" placeholder="John Newton"></div>
+    <div class="field"><label>Fecha del servicio</label><input type="date" id="sgDate" value="${todayISO()}"></div>
+    <div class="field"><label>Letra completa</label><textarea id="sgLyrics" rows="8" placeholder="Escribe aquí la letra..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveSong()">Guardar</button>
+    </div>
+  `);
+}
+function saveSong(){
+  const title = document.getElementById("sgTitle").value.trim();
+  const author = document.getElementById("sgAuthor").value.trim();
+  const date = document.getElementById("sgDate").value;
+  const lyrics = document.getElementById("sgLyrics").value.trim();
+  if(!title || !lyrics){ toast("Falta el título o la letra"); return; }
+  const existing = DATA.songs.find(s=> s.title.trim().toLowerCase()===title.toLowerCase());
+  if(existing){
+    existing.dates = existing.dates || [];
+    if(!existing.dates.includes(date)) existing.dates.push(date);
+    save(); closeModal(); toast("Ya estaba en el banco — se agregó la fecha"); render();
+    return;
+  }
+  DATA.songs.push({id:uid(), title, author, lyrics, dates:[date]});
+  save(); closeModal(); toast("Canto agregado al banco"); render();
+}
+function openAssignFromBank(){
+  const bank = [...DATA.songs].sort((a,b)=>a.title.localeCompare(b.title));
+  openModal(`
+    <h3>Programar del banco de cantos</h3>
+    <div class="field"><label>Canto</label>
+      <select id="abSong">${bank.map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join("")}</select>
+    </div>
+    <div class="field"><label>Fecha del servicio</label><input type="date" id="abDate" value="${todayISO()}"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveAssignFromBank()">Programar</button>
+    </div>
+  `);
+}
+function saveAssignFromBank(){
+  const id = document.getElementById("abSong").value;
+  const date = document.getElementById("abDate").value;
+  const s = DATA.songs.find(x=>x.id===id); if(!s || !date){ toast("Selecciona un canto y una fecha"); return; }
+  s.dates = s.dates || [];
+  if(!s.dates.includes(date)) s.dates.push(date);
+  save(); closeModal(); toast("Programado para el "+fmtDateShort(date)); render();
+}
+
+/* ---------- ORACIÓN ---------- */
+let oracionTab = "activas";
+function setOracionTab(t){ oracionTab = t; render(); }
+function viewOracion(){
+  const all = [...DATA.prayers].sort((a,b)=> b.date.localeCompare(a.date));
+  const activas = all.filter(p=>!p.answered);
+  const archivadas = all.filter(p=>p.answered);
+  const list = oracionTab==="activas" ? activas : archivadas;
+  return `
+    <div class="section-head"><h2>Oración</h2><p>Motivos de oración de la congregación.</p></div>
+    <div class="card">
+      <h3>Comparte un motivo de oración</h3>
+      <div class="field"><textarea id="prayerText" rows="3" placeholder="Escribe tu petición de oración..."></textarea></div>
+      <button class="btn gold" onclick="submitPrayer()">Enviar petición</button>
+    </div>
+    <div class="tabline">
+      <button class="${oracionTab==='activas'?'active':''}" onclick="setOracionTab('activas')">Activas (${activas.length})</button>
+      <button class="${oracionTab==='archivadas'?'active':''}" onclick="setOracionTab('archivadas')">📦 Archivadas / respondidas (${archivadas.length})</button>
+    </div>
+    ${list.map(p=>{
+      const reads = p.reads || {};
+      const myR = reads[SESSION.name] || {};
+      const readCount = Object.values(reads).filter(r=>r.read).length;
+      const prayCount = Object.values(reads).filter(r=>r.prayed).length;
+      const canVerify = can("manageAnsweredPrayer") || p.name===SESSION.name;
+      const canDelete = can("manageAnsweredPrayer") || p.name===SESSION.name;
+      return `
+      <div class="card">
+        <div class="row" style="align-items:flex-start;">
+          <div style="flex:1;">
+            <div class="ttl">${esc(p.name)} ${p.answered? '<span class="chip good">Respondida</span>':""}</div>
+            <div style="margin:6px 0; font-size:14px;">${esc(p.request)}</div>
+            <div class="meta" style="color:var(--ink-soft); font-size:12px;">${fmtDate(p.date)}</div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px; align-items:center;">
+          <button class="btn ${myR.read ? 'gold' : 'ghost'} small" onclick="markPrayerFlag('${p.id}','read')">👁️ ${myR.read ? "Leído" : "Marcar como leído"}</button>
+          <button class="btn ${myR.prayed ? 'gold' : 'ghost'} small" onclick="markPrayerFlag('${p.id}','prayed')">🙏 ${myR.prayed ? "Oré por esto" : "Oré por esto"}</button>
+        </div>
+        <div style="font-size:11.5px; color:var(--ink-soft); margin-top:8px;">
+          👁️ ${readCount} leyeron · 🙏 ${prayCount} oraron
+          ${canVerify ? ` · <button class="linklike" style="font-size:11.5px;" onclick="openPrayerVerify('${p.id}')">ver quiénes</button>` : ""}
+        </div>
+        <div class="row" style="margin-top:10px;">
+          ${can("manageAnsweredPrayer") && !p.answered ? `<button class="btn ghost small" onclick="markAnswered('${p.id}')">📦 Archivar como respondida</button>` : ""}
+          ${can("manageAnsweredPrayer") && p.answered ? `<button class="btn ghost small" onclick="unarchivePrayer('${p.id}')">↩️ Reactivar</button>` : ""}
+          ${canDelete ? `<button class="btn ghost small" onclick="deletePrayer('${p.id}')">🗑️ Eliminar</button>` : ""}
+        </div>
+      </div>
+    `;}).join("") || `<div class="empty"><div class="ic">🙏</div><p>${oracionTab==='activas' ? "No hay motivos de oración activos." : "Todavía no hay peticiones archivadas."}</p></div>`}
+  `;
+}
+function submitPrayer(){
+  const text = document.getElementById("prayerText").value.trim();
+  if(!text){ toast("Escribe tu motivo de oración"); return; }
+  DATA.prayers.unshift({id:uid(), name:SESSION.name, request:text, date:todayISO(), answered:false, reads:{}});
+  save(); toast("Petición enviada 🙏"); render();
+}
+function markAnswered(id){
+  const p = DATA.prayers.find(x=>x.id===id); if(p){ p.answered = true; save(); toast("Archivada como respondida"); render(); }
+}
+function unarchivePrayer(id){
+  const p = DATA.prayers.find(x=>x.id===id); if(p){ p.answered = false; save(); toast("Movida de nuevo a activas"); render(); }
+}
+function deletePrayer(id){
+  const ok = confirm("¿Eliminar esta petición de oración definitivamente?");
+  if(!ok) return;
+  DATA.prayers = DATA.prayers.filter(x=>x.id!==id);
+  save(); toast("Petición eliminada"); render();
+}
+function markPrayerFlag(id, flag){
+  const p = DATA.prayers.find(x=>x.id===id); if(!p) return;
+  p.reads = p.reads || {};
+  const cur = p.reads[SESSION.name] || {read:false, prayed:false};
+  cur[flag] = !cur[flag];
+  if(flag==="prayed" && cur.prayed) cur.read = true;
+  p.reads[SESSION.name] = cur;
+  save(); render();
+}
+function openPrayerVerify(id){
+  const p = DATA.prayers.find(x=>x.id===id); if(!p) return;
+  const reads = p.reads || {};
+  const names = Object.keys(reads);
+  const rows = names.length ? names.map(n=>{
+    const r = reads[n];
+    return `<div class="list-item"><div class="main"><div class="ttl" style="font-size:13.5px;">${esc(n)}</div></div>
+      <div style="display:flex; gap:6px;">
+        ${r.read ? '<span class="chip good">👁️ Leyó</span>':''}
+        ${r.prayed ? '<span class="chip gold">🙏 Oró</span>':''}
+      </div></div>`;
+  }).join("") : `<div class="empty"><p>Nadie ha marcado este motivo todavía.</p></div>`;
+  openModal(`<h3>Seguimiento del motivo</h3><div style="font-size:13px;color:var(--ink-soft);margin-bottom:12px;">"${esc(p.request)}"</div>${rows}<div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Cerrar</button></div>`);
+}
+
+/* ---------- VERSÍCULOS ---------- */
+function viewVersiculos(){
+  const list = [...DATA.verses].sort((a,b)=> b.date.localeCompare(a.date));
+  return `
+    <div class="section-head"><h2>Versículo diario</h2><p>Palabra para meditar cada día.</p></div>
+    ${can("editVerses") ? `<button class="btn gold" style="margin-bottom:14px;" onclick="openVerseForm()">+ Programar versículo</button>` : ""}
+    ${list.map(v=>`
+      <div class="card">
+        <span class="chip gold">${fmtDate(v.date)}</span>
+        <div style="font-family:'Fraunces',serif; font-size:16px; margin:10px 0 6px;">"${esc(v.text)}"</div>
+        <div style="font-size:13px; color:var(--ink-soft); font-weight:700;">${esc(v.ref)}</div>
+        ${can("editVerses") ? `<button class="btn ghost small" style="margin-top:10px;" onclick="deleteVerse('${v.id}')">Eliminar</button>` : ""}
+      </div>
+    `).join("")}
+  `;
+}
+function openVerseForm(){
+  openModal(`
+    <h3>Programar versículo</h3>
+    <div class="field"><label>Fecha</label><input type="date" id="vDate" value="${todayISO()}"></div>
+    <div class="field"><label>Texto del versículo</label><textarea id="vText" rows="3" placeholder="Escribe el versículo"></textarea></div>
+    <div class="field"><label>Referencia</label><input id="vRef" placeholder="Ej. Juan 3:16"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveVerse()">Guardar</button>
+    </div>
+  `);
+}
+function saveVerse(){
+  const date = document.getElementById("vDate").value;
+  const text = document.getElementById("vText").value.trim();
+  const ref = document.getElementById("vRef").value.trim();
+  if(!text || !ref){ toast("Completa el versículo y la referencia"); return; }
+  DATA.verses.push({id:uid(), date, text, ref});
+  save(); closeModal(); toast("Versículo programado"); render();
+}
+function deleteVerse(id){ DATA.verses = DATA.verses.filter(v=>v.id!==id); save(); toast("Eliminado"); render(); }
+
+/* ---------- MENSAJES ---------- */
+function viewMensajes(){
+  const inbox = DATA.messages.filter(m=> m.to==="todos" || m.to===SESSION.name).sort((a,b)=> b.date.localeCompare(a.date));
+  // Al ver la bandeja, se marca automáticamente como leído por esta persona.
+  let changed = false;
+  inbox.forEach(m=>{
+    m.readBy = m.readBy || [];
+    if(!m.readBy.includes(SESSION.name)){ m.readBy.push(SESSION.name); changed = true; }
+  });
+  if(changed) save();
+
+  const sentByMe = can("sendMessages") ? DATA.messages.filter(m=> m.from===SESSION.name).sort((a,b)=> b.date.localeCompare(a.date)) : [];
+
+  return `
+    <div class="section-head"><h2>Mensajes</h2><p>Comunicados de la iglesia.</p></div>
+    ${can("sendMessages") ? `<button class="btn gold" style="margin-bottom:14px;" onclick="openMsgForm()">+ Enviar mensaje</button>` : ""}
+    ${can("sendMessages") && sentByMe.length ? `
+      <div class="card">
+        <h3>📤 Enviados por mí — estado de lectura</h3>
+        ${sentByMe.map(m=>{
+          const recipients = m.to==="todos" ? DATA.members.filter(x=>x.active).map(x=>x.name) : [m.to];
+          const readCount = recipients.filter(n=> (m.readBy||[]).includes(n)).length;
+          return `
+          <div class="list-item">
+            <div class="main">
+              <div class="ttl">${esc(m.subject)} <span class="chip wine" style="margin-left:4px;">${m.to==="todos"?"Para todos":"Para "+esc(m.to)}</span></div>
+              <div class="meta">${fmtDate(m.date)} · 👁️ ${readCount}/${recipients.length} leyeron</div>
+            </div>
+            <button class="btn ghost small" onclick="openMsgReadStatus('${m.id}')">Ver quién</button>
+          </div>`;
+        }).join("")}
+      </div>
+    ` : ""}
+    ${inbox.map(m=>`
+      <div class="card">
+        <div class="row" style="align-items:flex-start;">
+          <div>
+            <span class="chip wine">${m.to==="todos"?"Para todos":"Para "+esc(m.to)}</span>
+            <h3 style="margin-top:8px;">${esc(m.subject)}</h3>
+            <div style="font-size:13.5px; margin-bottom:6px;">${esc(m.body)}</div>
+            <div class="meta" style="color:var(--ink-soft); font-size:12px;">De ${esc(m.from)} · ${fmtDate(m.date)}</div>
+          </div>
+        </div>
+      </div>
+    `).join("") || `<div class="empty"><div class="ic">✉️</div><p>No tienes mensajes por ahora.</p></div>`}
+  `;
+}
+function openMsgReadStatus(id){
+  const m = DATA.messages.find(x=>x.id===id); if(!m) return;
+  const recipients = m.to==="todos" ? DATA.members.filter(x=>x.active).map(x=>x.name) : [m.to];
+  const rows = recipients.map(n=>{
+    const read = (m.readBy||[]).includes(n);
+    return `<div class="list-item"><div class="main"><div class="ttl" style="font-size:13.5px;">${esc(n)}</div></div>
+      ${read? '<span class="chip good">👁️ Leyó</span>' : '<span class="chip gold">Aún no lo ha leído</span>'}</div>`;
+  }).join("");
+  openModal(`<h3>${esc(m.subject)}</h3>${rows}<div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Cerrar</button></div>`);
+}
+function memberPhone(name){
+  const m = DATA.members.find(x=> x.name.toLowerCase()===(name||"").toLowerCase());
+  return m ? m.phone : "";
+}
+function openMsgForm(){
+  const opts = DATA.members.filter(m=>m.active).map(m=>`<option value="${esc(m.name)}">${esc(m.name)}</option>`).join("");
+  openModal(`
+    <h3>Enviar mensaje</h3>
+    <div class="field"><label>Destinatario</label>
+      <select id="msgTo"><option value="todos">Todos los miembros</option>${opts}</select>
+    </div>
+    <div class="field"><label>Asunto</label><input id="msgSubject" placeholder="Ej. Cambio de horario"></div>
+    <div class="field"><label>Mensaje</label><textarea id="msgBody" rows="4" placeholder="Escribe tu mensaje..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="sendMsg()">Enviar en la app</button>
+    </div>
+    <button class="btn ghost" style="margin-top:8px; width:100%;" onclick="sendMsgWhatsapp()">📲 Enviar (también) por WhatsApp</button>
+  `);
+}
+function sendMsg(){
+  const to = document.getElementById("msgTo").value;
+  const subject = document.getElementById("msgSubject").value.trim();
+  const body = document.getElementById("msgBody").value.trim();
+  if(!subject || !body){ toast("Completa el asunto y el mensaje"); return; }
+  DATA.messages.unshift({id:uid(), from:SESSION.name, to, subject, body, date:todayISO(), readBy:[]});
+  save(); closeModal(); toast("Mensaje enviado"); render();
+}
+function sendMsgWhatsapp(){
+  const to = document.getElementById("msgTo").value;
+  const subject = document.getElementById("msgSubject").value.trim();
+  const body = document.getElementById("msgBody").value.trim();
+  if(!subject || !body){ toast("Completa el asunto y el mensaje"); return; }
+  const text = `*${subject}*\n${body}\n\n— ${DATA.config.churchName}`;
+  if(to!=="todos"){
+    const phone = memberPhone(to);
+    if(phone){
+      window.open("https://wa.me/"+phone.replace(/[^0-9]/g,"")+"?text="+encodeURIComponent(text), "_blank");
+    } else {
+      toast(to+" no tiene teléfono registrado — se abrirá WhatsApp para elegir el contacto");
+      window.open("https://wa.me/?text="+encodeURIComponent(text), "_blank");
+    }
+  } else {
+    window.open("https://wa.me/?text="+encodeURIComponent(text), "_blank");
+  }
+  // también se guarda en la app para que quede registro y notifique dentro de la app
+  DATA.messages.unshift({id:uid(), from:SESSION.name, to, subject, body, date:todayISO(), readBy:[]});
+  save(); closeModal(); toast("Mensaje enviado por WhatsApp y guardado en la app"); render();
+}
+
+/* ---------- MIEMBROS ---------- */
+function viewMiembros(){
+  if(!can("manageMembers")){
+    return `<div class="finance-guard"><div style="font-size:32px;">🔒</div><p>Esta sección es solo para el Pastor y los Diáconos.</p></div>`;
+  }
+  const list = [...DATA.members].sort((a,b)=> a.name.localeCompare(b.name));
+  const accountNames = new Set(DATA.users.map(u=>u.name.toLowerCase()));
+  return `
+    <div class="section-head"><h2>Directorio de miembros</h2><p>Aquí puedes registrar también a los hermanos que no tienen la app en su teléfono — igual quedan contados en la asistencia.</p></div>
+    <button class="btn gold" style="margin-bottom:14px;" onclick="openMemberForm()">+ Agregar miembro</button>
+    <div class="card">
+      ${list.map(m=>`
+        <div class="list-item">
+          <div class="avatar-thumb">${resolveBlobUrl(m.photoDataUrl) ? `<img src="${resolveBlobUrl(m.photoDataUrl)}" alt="">` : initials(m.name)}</div>
+          <div class="main">
+            <div class="ttl">${esc(m.name)} ${!m.active? '<span class="chip wine">Inactivo</span>':""}</div>
+            <div class="meta">${esc(m.role||"Miembro")}${m.phone? " · 📱 "+esc(m.phone):" · sin teléfono"}${m.birthDate? " · 🎂 "+fmtDateShort(m.birthDate):" · sin cumpleaños"} ·
+              ${accountNames.has(m.name.toLowerCase()) ? '<span class="chip good">Con cuenta</span>' : '<span class="chip gold">Sin cuenta en la app</span>'}
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:5px;">
+            <button class="btn ghost small" onclick="openEditMember('${m.id}')">✏️ Editar</button>
+            <button class="btn ghost small" onclick="toggleMember('${m.id}')">${m.active? "Desactivar":"Activar"}</button>
+            ${can("deleteMembers") ? `<button class="btn danger small" onclick="deleteMemberPermanently('${m.id}')">🗑️ Eliminar</button>` : ""}
+          </div>
+        </div>
+      `).join("") || `<div class="empty"><p>No hay miembros registrados.</p></div>`}
+    </div>
+  `;
+}
+function openMemberForm(){
+  const contactSupport = ("contacts" in navigator && "ContactsManager" in window);
+  openModal(`
+    <h3>Agregar miembro</h3>
+    ${contactSupport ? `<button type="button" class="btn ghost" style="margin-bottom:12px;" onclick="pickContactForMember()">📇 Elegir desde mis contactos</button>` :
+      `<p style="font-size:11px; color:var(--ink-soft); margin-bottom:12px;">📇 Elegir desde contactos solo está disponible en Chrome para Android por ahora — en este dispositivo/navegador escribe los datos manualmente abajo.</p>`}
+    <div class="field"><label>Nombre completo</label><input id="mName" placeholder="Ej. Pedro Sánchez"></div>
+    <div class="field"><label>Teléfono (opcional)</label><input id="mPhone" placeholder="000-000-0000"></div>
+    <div class="field"><label>Fecha de nacimiento (opcional)</label><input type="date" id="mBirth"></div>
+    <p style="font-size:11px; color:var(--ink-soft);">Así, aunque el hermano no tenga la app en su teléfono, igual aparecerá en asistencia y en la lista de cumpleañeros.</p>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveMember()">Guardar</button>
+    </div>
+  `);
+}
+function pickContactForMember(){
+  navigator.contacts.select(["name","tel"], {multiple:false}).then(contacts=>{
+    if(!contacts || !contacts.length){ return; }
+    const c = contacts[0];
+    const name = (c.name && c.name[0]) || "";
+    const tel = (c.tel && c.tel[0]) || "";
+    if(document.getElementById("mName")) document.getElementById("mName").value = name;
+    if(document.getElementById("mPhone")) document.getElementById("mPhone").value = tel;
+    toast("Contacto importado");
+  }).catch(()=>{ toast("No se pudo abrir los contactos (puede que hayas cancelado o el permiso esté bloqueado)"); });
+}
+function saveMember(){
+  const name = document.getElementById("mName").value.trim();
+  const phone = document.getElementById("mPhone").value.trim();
+  const birthDate = document.getElementById("mBirth").value || null;
+  if(!name){ toast("Escribe el nombre"); return; }
+  DATA.members.push({id:uid(), name, phone, role:"Miembro", active:true, birthDate, photoDataUrl:null});
+  save(); closeModal(); toast("Miembro agregado"); render();
+}
+function toggleMember(id){
+  const m = DATA.members.find(x=>x.id===id); if(m){ m.active = !m.active; save(); render(); }
+}
+function deleteMemberPermanently(id){
+  const m = DATA.members.find(x=>x.id===id); if(!m) return;
+  const ok = confirm("¿Eliminar a "+m.name+" definitivamente? Esto no borra su historial de asistencia pasado, pero ya no aparecerá en la lista de miembros.");
+  if(!ok) return;
+  DATA.members = DATA.members.filter(x=>x.id!==id);
+  save(); toast("Miembro eliminado"); render();
+}
+function openEditMember(id){
+  const m = DATA.members.find(x=>x.id===id); if(!m) return;
+  const contactSupport = ("contacts" in navigator && "ContactsManager" in window);
+  openModal(`
+    <h3>Editar miembro</h3>
+    ${contactSupport ? `<button type="button" class="btn ghost" style="margin-bottom:12px;" onclick="pickContactForEdit()">📇 Elegir teléfono desde mis contactos</button>` : ""}
+    <div class="field"><label>Teléfono</label><input id="emPhone" value="${esc(m.phone||"")}" placeholder="000-000-0000"></div>
+    <div class="field"><label>Fecha de nacimiento</label><input type="date" id="emBirth" value="${m.birthDate||""}"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveEditMember('${m.id}')">Guardar</button>
+    </div>
+  `);
+}
+function pickContactForEdit(){
+  navigator.contacts.select(["tel"], {multiple:false}).then(contacts=>{
+    if(!contacts || !contacts.length) return;
+    const tel = (contacts[0].tel && contacts[0].tel[0]) || "";
+    if(document.getElementById("emPhone")) document.getElementById("emPhone").value = tel;
+    toast("Teléfono importado");
+  }).catch(()=>{ toast("No se pudo abrir los contactos"); });
+}
+function saveEditMember(id){
+  const m = DATA.members.find(x=>x.id===id); if(!m) return;
+  m.phone = document.getElementById("emPhone").value.trim();
+  m.birthDate = document.getElementById("emBirth").value || null;
+  save(); closeModal(); toast("Miembro actualizado"); render();
+}
+
+/* ---------- REUNIONES PRIVADAS ---------- */
+function viewReuniones(){
+  const organizer = can("editMeetings");
+  const visible = DATA.meetings.filter(mt => organizer || (mt.assigned||[]).includes(SESSION.name))
+    .sort((a,b)=> a.date.localeCompare(b.date));
+  return `
+    <div class="section-head"><h2>Reuniones privadas</h2><p>Convocatorias visibles solo para los hermanos asignados.</p></div>
+    ${organizer ? `<button class="btn gold" style="margin-bottom:14px;" onclick="openMeetingForm()">+ Convocar reunión</button>` : ""}
+    ${visible.map(mt=>{
+      const myResp = (mt.responses||{})[SESSION.name];
+      const yesCount = Object.values(mt.responses||{}).filter(v=>v==="yes").length;
+      const noCount = Object.values(mt.responses||{}).filter(v=>v==="no").length;
+      return `
+      <div class="card">
+        <span class="chip wine">🔒 Privada</span>
+        <h3 style="margin-top:8px;">${esc(mt.title)}</h3>
+        <div class="meta" style="color:var(--ink-soft); font-size:12.5px; margin-bottom:8px;">
+          📅 ${fmtDate(mt.date)} · 🕑 ${esc(mt.time)} · 📍 ${esc(mt.place)}
+        </div>
+        ${mt.desc ? `<div style="font-size:13.5px; margin-bottom:10px;">${esc(mt.desc)}</div>` : ""}
+        <div style="font-size:11.5px; color:var(--ink-soft); margin-bottom:10px;">Convocados: ${(mt.assigned||[]).map(esc).join(", ")}</div>
+        ${!organizer ? `
+          <div class="row">
+            <button class="btn ${myResp==='yes' ? 'gold' : 'ghost'} small" onclick="respondMeeting('${mt.id}','yes')">✅ Sí puedo asistir</button>
+            <button class="btn ${myResp==='no' ? 'gold' : 'ghost'} small" onclick="respondMeeting('${mt.id}','no')">❌ No puedo</button>
+          </div>
+        ` : `
+          <div style="font-size:12px; margin-bottom:8px;"><b>${yesCount}</b> confirmaron · <b>${noCount}</b> no pueden · ${(mt.assigned||[]).length - yesCount - noCount} sin responder</div>
+          <button class="btn ghost small" onclick="openMeetingResponses('${mt.id}')">Ver respuestas</button>
+          <button class="btn ghost small" onclick="deleteMeeting('${mt.id}')">Eliminar</button>
+        `}
+      </div>
+    `;}).join("") || `<div class="empty"><div class="ic">🔒</div><p>${organizer ? "Aún no has convocado ninguna reunión privada." : "No tienes reuniones privadas asignadas por ahora."}</p></div>`}
+  `;
+}
+function openMeetingForm(){
+  const opts = DATA.members.filter(m=>m.active).map(m=>`
+    <label style="display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:13.5px;">
+      <input type="checkbox" class="mtMember" value="${esc(m.name)}"> ${esc(m.name)}
+    </label>`).join("");
+  openModal(`
+    <h3>Convocar reunión privada</h3>
+    <div class="field"><label>Título</label><input id="mtTitle" placeholder="Ej. Reunión de diáconos"></div>
+    <div class="row">
+      <div class="field"><label>Fecha</label><input type="date" id="mtDate" value="${todayISO()}"></div>
+      <div class="field"><label>Hora</label><input id="mtTime" placeholder="7:00 PM"></div>
+    </div>
+    <div class="field"><label>Lugar</label><input id="mtPlace" placeholder="Oficina pastoral"></div>
+    <div class="field"><label>Detalles (opcional)</label><textarea id="mtDesc" rows="2"></textarea></div>
+    <div class="field">
+      <label>¿Quiénes están convocados? (solo ellos verán esta reunión)</label>
+      <div style="max-height:180px; overflow-y:auto; border:1.5px solid var(--line); border-radius:10px; padding:4px 12px;">${opts || "<p style='font-size:12.5px;color:var(--ink-soft);'>No hay miembros registrados.</p>"}</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveMeeting()">Convocar</button>
+    </div>
+  `);
+}
+function saveMeeting(){
+  const title = document.getElementById("mtTitle").value.trim();
+  const date = document.getElementById("mtDate").value;
+  const time = document.getElementById("mtTime").value.trim();
+  const place = document.getElementById("mtPlace").value.trim();
+  const desc = document.getElementById("mtDesc").value.trim();
+  const assigned = [...document.querySelectorAll(".mtMember:checked")].map(cb=>cb.value);
+  if(!title || !date || !assigned.length){ toast("Falta el título, la fecha, o no elegiste a nadie"); return; }
+  DATA.meetings.push({id:uid(), title, date, time, place, desc, assigned, responses:{}, createdBy:SESSION.name});
+  save(); closeModal(); toast("Reunión convocada"); render();
+}
+function respondMeeting(id, val){
+  const mt = DATA.meetings.find(x=>x.id===id); if(!mt) return;
+  mt.responses = mt.responses || {};
+  mt.responses[SESSION.name] = val;
+  save(); toast(val==="yes" ? "Confirmaste tu asistencia" : "Avisaste que no podrás asistir"); render();
+}
+function openMeetingResponses(id){
+  const mt = DATA.meetings.find(x=>x.id===id); if(!mt) return;
+  const rows = (mt.assigned||[]).map(name=>{
+    const r = (mt.responses||{})[name];
+    const badge = r==="yes" ? '<span class="chip good">Sí asiste</span>' : r==="no" ? '<span class="chip wine">No puede</span>' : '<span class="chip gold">Sin responder</span>';
+    return `<div class="list-item"><div class="main"><div class="ttl" style="font-size:13.5px;">${esc(name)}</div></div>${badge}</div>`;
+  }).join("");
+  openModal(`<h3>Respuestas — ${esc(mt.title)}</h3>${rows}<div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Cerrar</button></div>`);
+}
+function deleteMeeting(id){ DATA.meetings = DATA.meetings.filter(x=>x.id!==id); save(); toast("Reunión eliminada"); render(); }
+
+/* ---------- DEVOCIONALES Y AYUNO ---------- */
+function viewDevocionales(){
+  const list = [...DATA.devotionals].sort((a,b)=> b.weekStart.localeCompare(a.weekStart));
+  return `
+    <div class="section-head"><h2>Devocional y ayuno</h2><p>A quién le toca esta semana, y el versículo del devocional.</p></div>
+    ${can("editDevotionals") ? `<button class="btn gold" style="margin-bottom:14px;" onclick="openDevoForm()">+ Programar semana</button>` : ""}
+    ${list.map((d,i)=>{
+      const isMine = d.devotionalName.trim().toLowerCase() === SESSION.name.trim().toLowerCase();
+      const canUpload = isMine || can("editDevotionals");
+      return `
+      <div class="card">
+        ${i===0 ? '<span class="chip gold">Semana actual</span>' : `<span class="chip wine">Semana del ${fmtDateShort(d.weekStart)}</span>`}
+        <div style="margin-top:10px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div>
+            <div style="font-size:11px; color:var(--ink-soft); font-weight:700; margin-bottom:3px;">🌿 DEVOCIONAL</div>
+            <div class="ttl">${esc(d.devotionalName)}</div>
+            <div class="meta">${esc(d.devotionalDay)}</div>
+          </div>
+          <div>
+            <div style="font-size:11px; color:var(--ink-soft); font-weight:700; margin-bottom:3px;">🍽️ AYUNO</div>
+            <div class="ttl">${esc(d.fastingName)}</div>
+            <div class="meta">${esc(d.fastingDay)}</div>
+          </div>
+        </div>
+        <div style="font-family:'Fraunces',serif; font-size:15px; margin:12px 0 4px;">"${esc(d.verseText)}"</div>
+        <div style="font-size:12.5px; color:var(--ink-soft); font-weight:700;">${esc(d.verseRef)}</div>
+
+        ${d.mediaUrl ? `
+          <div style="margin-top:12px;">
+            <div style="font-size:11px; color:var(--ink-soft); font-weight:700; margin-bottom:6px;">🎙️ Devocional de ${esc(d.devotionalName.split(" ")[0])}</div>
+            ${resolveBlobUrl(d.mediaUrl) ?
+              (d.mediaType==="video" ? `<video controls style="width:100%; border-radius:10px;" src="${resolveBlobUrl(d.mediaUrl)}"></video>` : `<audio controls style="width:100%;" src="${resolveBlobUrl(d.mediaUrl)}"></audio>`)
+              : `<p style="font-size:11.5px; color:var(--ink-soft);">Este archivo solo está disponible en el dispositivo donde se subió (no se pudo compartir con los demás).</p>`}
+          </div>
+        ` : ""}
+
+        ${canUpload ? `
+          <div class="row" style="margin-top:12px;">
+            <button type="button" class="btn gold small" onclick="openRecordModal('${d.id}','audio')">🔴 Grabar audio</button>
+            <button type="button" class="btn gold small" onclick="openRecordModal('${d.id}','video')">🔴 Grabar video</button>
+          </div>
+          <div class="row" style="margin-top:8px;">
+            <label class="btn ghost small" style="text-align:center; cursor:pointer;">📁 Subir audio
+              <input type="file" accept="audio/*" style="display:none;" onchange="uploadDevoMedia('${d.id}', this, 'audio')">
+            </label>
+            <label class="btn ghost small" style="text-align:center; cursor:pointer;">📁 Subir video
+              <input type="file" accept="video/*" style="display:none;" onchange="uploadDevoMedia('${d.id}', this, 'video')">
+            </label>
+          </div>
+        ` : ""}
+        ${can("editDevotionals") ? `<button class="btn ghost small" style="margin-top:10px;" onclick="deleteDevo('${d.id}')">Eliminar</button>` : ""}
+      </div>
+    `;}).join("") || `<div class="empty"><div class="ic">🌿</div><p>Aún no se ha programado el devocional de esta semana.</p></div>`}
+  `;
+}
+function uploadDevoMedia(id, input, kind){
+  const file = input.files[0]; if(!file) return;
+  const maxMB = kind==="video" ? 12 : 6;
+  if(file.size > maxMB*1024*1024){ toast(`Ese archivo es muy pesado (máx. ~${maxMB} MB)`); input.value=""; return; }
+  toast("Subiendo… un momento");
+  uploadToStorage(file, "devocionales", (url, synced)=>{
+    const d = DATA.devotionals.find(x=>x.id===id); if(!d) return;
+    d.mediaUrl = url; d.mediaType = kind;
+    save();
+    toast(synced ? "Devocional subido y sincronizado 🎧" : "Devocional guardado solo en este dispositivo 🎧");
+    render();
+  }, ()=> toast("No se pudo subir el archivo"));
+}
+
+/* ---------- GRABAR AUDIO/VIDEO EN VIVO (MediaRecorder) ---------- */
+let __recorder = null, __recChunks = [], __recStream = null;
+function openRecordModal(devoId, kind){
+  const supported = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+  if(!supported){
+    toast("Tu navegador no permite grabar aquí — usa la opción 'Subir audio/video' en su lugar");
+    return;
+  }
+  openModal(`
+    <h3>${kind==='video'?'🎥 Grabar video':'🎙️ Grabar nota de voz'}</h3>
+    ${kind==='video' ? '<video id="recPreview" autoplay muted playsinline style="width:100%;border-radius:10px;background:#000;max-height:280px;object-fit:cover;"></video>' : '<div style="text-align:center; padding:34px; font-size:44px;">🎙️</div>'}
+    <div id="recStatus" style="text-align:center; font-size:13px; color:var(--ink-soft); margin:12px 0;">Toca "Iniciar" y permite el acceso al ${kind==='video'?'micrófono y la cámara':'micrófono'}.</div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="cancelRecording()">Cancelar</button>
+      <button class="btn gold" id="recStartBtn" onclick="startRecording('${devoId}','${kind}')">⏺️ Iniciar</button>
+      <button class="btn danger" id="recStopBtn" style="display:none;" onclick="stopRecording()">⏹️ Detener y guardar</button>
+    </div>
+  `);
+}
+function startRecording(devoId, kind){
+  const constraints = kind==="video" ? {video:true, audio:true} : {audio:true};
+  navigator.mediaDevices.getUserMedia(constraints).then(stream=>{
+    __recStream = stream;
+    if(kind==="video"){ const v=document.getElementById("recPreview"); if(v){ v.srcObject = stream; } }
+    __recChunks = [];
+    __recorder = new MediaRecorder(stream);
+    __recorder.ondataavailable = e=>{ if(e.data.size>0) __recChunks.push(e.data); };
+    __recorder.onstop = ()=>{
+      const blob = new Blob(__recChunks, {type: kind==="video" ? "video/webm" : "audio/webm"});
+      if(blob.size > 12*1024*1024){
+        toast("La grabación quedó muy pesada — intenta algo más corto");
+      } else {
+        toast("Subiendo grabación…");
+        blob.name = (kind==="video"?"video":"audio")+"_"+Date.now()+".webm";
+        uploadToStorage(blob, "devocionales", (url, synced)=>{
+          const d = DATA.devotionals.find(x=>x.id===devoId);
+          if(d){
+            d.mediaUrl = url; d.mediaType = kind;
+            save();
+            toast(synced ? "Grabación guardada y sincronizada 🎬" : "Grabación guardada solo en este dispositivo 🎬");
+          }
+          render();
+        }, ()=> toast("No se pudo subir la grabación"));
+      }
+      if(__recStream){ __recStream.getTracks().forEach(t=>t.stop()); __recStream=null; }
+    };
+    __recorder.start();
+    const startBtn = document.getElementById("recStartBtn"), stopBtn = document.getElementById("recStopBtn"), status = document.getElementById("recStatus");
+    if(startBtn) startBtn.style.display = "none";
+    if(stopBtn) stopBtn.style.display = "";
+    if(status) status.textContent = "🔴 Grabando... toca \"Detener y guardar\" cuando termines.";
+  }).catch(()=>{
+    toast("No se pudo acceder al micrófono/cámara. Revisa los permisos del navegador.");
+  });
+}
+function stopRecording(){
+  if(__recorder && __recorder.state!=="inactive"){ __recorder.stop(); }
+  closeModal();
+}
+function cancelRecording(){
+  if(__recorder && __recorder.state!=="inactive"){ __recorder.stop(); }
+  if(__recStream){ __recStream.getTracks().forEach(t=>t.stop()); __recStream=null; }
+  closeModal();
+}
+function openDevoForm(){
+  openModal(`
+    <h3>Programar devocional y ayuno de la semana</h3>
+    <div class="field"><label>Semana que inicia</label><input type="date" id="dvWeek" value="${todayISO()}"></div>
+    <div class="field"><label>Hermano(a) del devocional</label><input id="dvName" placeholder="Nombre completo"></div>
+    <div class="field"><label>Día del devocional</label><input id="dvDay" placeholder="Ej. Miércoles"></div>
+    <div class="field"><label>Versículo del devocional</label><textarea id="dvVerse" rows="2" placeholder="Texto del versículo"></textarea></div>
+    <div class="field"><label>Referencia</label><input id="dvRef" placeholder="Ej. Salmos 34:18"></div>
+    <div class="field"><label>Hermano(a) del ayuno</label><input id="dvFastName" placeholder="Nombre completo"></div>
+    <div class="field"><label>Día del ayuno</label><input id="dvFastDay" placeholder="Ej. Viernes"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveDevo()">Guardar</button>
+    </div>
+  `);
+}
+function saveDevo(){
+  const weekStart = document.getElementById("dvWeek").value;
+  const devotionalName = document.getElementById("dvName").value.trim();
+  const devotionalDay = document.getElementById("dvDay").value.trim();
+  const verseText = document.getElementById("dvVerse").value.trim();
+  const verseRef = document.getElementById("dvRef").value.trim();
+  const fastingName = document.getElementById("dvFastName").value.trim();
+  const fastingDay = document.getElementById("dvFastDay").value.trim();
+  if(!weekStart || !devotionalName || !verseText){ toast("Falta la semana, el nombre o el versículo"); return; }
+  DATA.devotionals.push({id:uid(), weekStart, devotionalName, devotionalDay, verseText, verseRef, fastingName, fastingDay});
+  save(); closeModal(); toast("Semana programada"); render();
+}
+function deleteDevo(id){ DATA.devotionals = DATA.devotionals.filter(x=>x.id!==id); save(); toast("Eliminado"); render(); }
+
+/* ---------- VISITACIÓN Y SEGUIMIENTO ---------- */
+function viewVisitacion(){
+  if(!can("editVisitation")){
+    return `<div class="finance-guard"><div style="font-size:32px;">🔒</div><p>Esta sección es solo para el Pastor y los Diáconos.</p></div>`;
+  }
+  const list = [...DATA.visitation].sort((a,b)=> (a.status==="Pendiente"?0:1) - (b.status==="Pendiente"?0:1) || b.date.localeCompare(a.date));
+  const pendCount = DATA.visitation.filter(v=>v.status==="Pendiente").length;
+  return `
+    <div class="section-head"><h2>Visitación y seguimiento</h2><p>Hermanos que necesitan una visita o seguimiento pastoral.</p></div>
+    <div class="stat-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="stat"><div class="n">${pendCount}</div><div class="l">Pendientes</div></div>
+      <div class="stat"><div class="n">${DATA.visitation.length - pendCount}</div><div class="l">Visitados</div></div>
+    </div>
+    <button class="btn gold" style="margin-bottom:14px;" onclick="openVisitForm()">+ Registrar caso</button>
+    ${list.map(v=>`
+      <div class="card">
+        <span class="chip ${v.status==='Pendiente'?'wine':'good'}">${esc(v.status)}</span>
+        <h3 style="margin-top:8px;">${esc(v.memberName)}</h3>
+        <div style="font-size:13.5px; margin:6px 0;">${esc(v.reason)}</div>
+        <div class="meta" style="color:var(--ink-soft); font-size:12px;">Asignado a ${esc(v.assignedTo)} · ${fmtDate(v.date)}</div>
+        ${v.notes ? `<div style="font-size:12.5px; margin-top:6px; color:var(--ink-soft);">📝 ${esc(v.notes)}</div>` : ""}
+        <div class="row" style="margin-top:10px;">
+          ${v.status==="Pendiente" ? `<button class="btn ghost small" onclick="markVisited('${v.id}')">✅ Marcar como visitado</button>` : ""}
+          <button class="btn ghost small" onclick="deleteVisit('${v.id}')">Eliminar</button>
+        </div>
+      </div>
+    `).join("") || `<div class="empty"><div class="ic">🚪</div><p>No hay casos de visitación registrados.</p></div>`}
+  `;
+}
+function openVisitForm(){
+  const opts = DATA.members.filter(m=>m.active).map(m=>`<option value="${esc(m.name)}">${esc(m.name)}</option>`).join("");
+  const leaders = DATA.members.filter(m=> ["Pastor","Diácono"].includes(m.role)).map(m=>`<option value="${esc(m.name)}">${esc(m.name)}</option>`).join("");
+  openModal(`
+    <h3>Registrar caso de visitación</h3>
+    <div class="field"><label>Hermano(a)</label><select id="vsMember"><option value="">— Selecciona —</option>${opts}</select></div>
+    <div class="field"><label>Motivo</label><textarea id="vsReason" rows="2" placeholder="Ej. Ausencia prolongada, enfermedad, situación familiar..."></textarea></div>
+    <div class="field"><label>Asignado a</label><select id="vsAssigned"><option value="${esc(SESSION.name)}">${esc(SESSION.name)} (yo)</option>${leaders}</select></div>
+    <div class="field"><label>Fecha</label><input type="date" id="vsDate" value="${todayISO()}"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveVisit()">Guardar</button>
+    </div>
+  `);
+}
+function saveVisit(){
+  const memberName = document.getElementById("vsMember").value;
+  const reason = document.getElementById("vsReason").value.trim();
+  const assignedTo = document.getElementById("vsAssigned").value;
+  const date = document.getElementById("vsDate").value;
+  if(!memberName || !reason){ toast("Falta el hermano o el motivo"); return; }
+  DATA.visitation.push({id:uid(), memberName, reason, assignedTo, date, status:"Pendiente", notes:""});
+  save(); closeModal(); toast("Caso registrado"); render();
+}
+function markVisited(id){
+  const v = DATA.visitation.find(x=>x.id===id); if(!v) return;
+  const notes = prompt("¿Alguna nota de la visita? (opcional)") || "";
+  v.status = "Visitado"; v.notes = notes; save(); toast("Marcado como visitado"); render();
+}
+function deleteVisit(id){ DATA.visitation = DATA.visitation.filter(x=>x.id!==id); save(); toast("Eliminado"); render(); }
+
+/* ---------- ESTUDIOS BÍBLICOS ---------- */
+let estudiosTab = "guias";
+function setEstudiosTab(t){ estudiosTab = t; render(); }
+function viewEstudios(){
+  return `
+    <div class="section-head"><h2>Estudios bíblicos</h2><p>Guías, estudio inductivo, temas y tus retos de disciplina.</p></div>
+    <div class="tabline">
+      <button class="${estudiosTab==='guias'?'active':''}" onclick="setEstudiosTab('guias')">📚 Guías</button>
+      <button class="${estudiosTab==='inductivo'?'active':''}" onclick="setEstudiosTab('inductivo')">🔍 Inductivo</button>
+      <button class="${estudiosTab==='temas'?'active':''}" onclick="setEstudiosTab('temas')">📖 Temas</button>
+      <button class="${estudiosTab==='retos'?'active':''}" onclick="setEstudiosTab('retos')">🏅 Mis retos</button>
+    </div>
+    ${estudiosTab==='guias' ? viewEstudiosGuias() : ""}
+    ${estudiosTab==='inductivo' ? viewEstudioInductivo() : ""}
+    ${estudiosTab==='temas' ? viewEstudioTemas() : ""}
+    ${estudiosTab==='retos' ? viewRetos() : ""}
+  `;
+}
+function viewEstudiosGuias(){
+  const list = [...DATA.studies].sort((a,b)=> b.date.localeCompare(a.date));
+  return `
+    ${can("editStudies") ? `<button class="btn gold" style="margin-bottom:14px;" onclick="openStudyForm()">+ Subir guía (PDF)</button>` : ""}
+    ${list.map(s=>`
+      <div class="card">
+        <div class="row" style="align-items:center;">
+          <div style="flex:1;">
+            <h3 style="margin:0;">📚 ${esc(s.title)}</h3>
+            <div class="meta" style="color:var(--ink-soft); font-size:12px; margin-top:3px;">Publicado el ${fmtDate(s.date)} · ${s.sizeKB} KB</div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn ghost small" onclick="previewStudy('${s.id}')">👁️ Ver antes</button>
+          <a class="btn gold small" style="text-decoration:none; text-align:center;" href="${resolveBlobUrl(s.fileDataUrl)}" download="${esc(s.fileName)}">⬇️ Descargar PDF</a>
+          ${can("editStudies") ? `<button class="btn ghost small" onclick="deleteStudy('${s.id}')">Eliminar</button>` : ""}
+        </div>
+      </div>
+    `).join("") || `<div class="empty"><div class="ic">📚</div><p>El Pastor aún no ha subido guías de estudio.</p></div>`}
+  `;
+}
+function previewStudy(id){
+  const s = DATA.studies.find(x=>x.id===id); if(!s) return;
+  openModal(`
+    <h3>📚 ${esc(s.title)}</h3>
+    <p style="font-size:11.5px; color:var(--ink-soft); margin-top:-8px;">Vista previa — si tu navegador no la muestra aquí, usa "Descargar PDF".</p>
+    <iframe src="${resolveBlobUrl(s.fileDataUrl)}" style="width:100%; height:60vh; border:1px solid var(--line); border-radius:10px;"></iframe>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cerrar</button>
+      <a class="btn gold" style="text-decoration:none; text-align:center;" href="${resolveBlobUrl(s.fileDataUrl)}" download="${esc(s.fileName)}">⬇️ Descargar</a>
+    </div>
+  `);
+}
+function openStudyForm(){
+  openModal(`
+    <h3>Subir guía de estudio (PDF)</h3>
+    <div class="field"><label>Título</label><input id="stTitle" placeholder="Ej. Estudio del libro de Romanos"></div>
+    <div class="field"><label>Archivo PDF</label><input type="file" id="stFile" accept="application/pdf"></div>
+    <p style="font-size:11.5px; color:var(--ink-soft);">El archivo se guarda en la nube (Firebase Storage) y queda disponible para todos — hasta ~15 MB.</p>
+    <div class="err" id="stErr"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveStudy()">Guardar</button>
+    </div>
+  `);
+}
+function saveStudy(){
+  const title = document.getElementById("stTitle").value.trim();
+  const fileInput = document.getElementById("stFile");
+  const errEl = document.getElementById("stErr");
+  const file = fileInput.files[0];
+  if(!title || !file){ errEl.textContent = "Falta el título o el archivo."; return; }
+  if(file.size > 15*1024*1024){ errEl.textContent = "El archivo es muy grande (máx. ~15 MB)."; return; }
+  errEl.textContent = "Subiendo…";
+  uploadToStorage(file, "estudios", (url, synced)=>{
+    DATA.studies.push({id:uid(), title, date:todayISO(), fileName:file.name, fileDataUrl:url, sizeKB: Math.round(file.size/1024)});
+    save(); closeModal();
+    toast(synced ? "Guía subida y sincronizada" : "Guía guardada solo en este dispositivo");
+    render();
+  }, ()=>{ errEl.textContent = "No se pudo subir el archivo."; });
+}
+function deleteStudy(id){ DATA.studies = DATA.studies.filter(x=>x.id!==id); save(); toast("Guía eliminada"); render(); }
+
+/* ---------- ESTUDIO INDUCTIVO (10 preguntas) ---------- */
+const INDUCTIVE_QUESTIONS = [
+  {id:"q1", type:"obs", text:"¿Quién escribió este pasaje y a quién se lo escribió?"},
+  {id:"q2", type:"obs", text:"¿Qué está pasando en este pasaje? Descríbelo con tus propias palabras."},
+  {id:"q3", type:"obs", text:"¿Qué palabras o frases se repiten o te llaman la atención?"},
+  {id:"q4", type:"obs", text:"¿Cuál es el contexto histórico y cultural de este pasaje?"},
+  {id:"q5", type:"obs", text:"¿Qué relación tiene este versículo con lo que está antes y después?"},
+  {id:"q6", type:"obs", text:"¿Qué revela este pasaje acerca del carácter de Dios?"},
+  {id:"q7", type:"app", text:"¿Qué me está diciendo Dios a mí personalmente a través de este pasaje?"},
+  {id:"q8", type:"app", text:"¿Hay algún mandato, promesa o advertencia que deba obedecer o recibir?"},
+  {id:"q9", type:"app", text:"¿Qué cambio concreto puedo hacer esta semana a partir de esto?"},
+  {id:"q10", type:"app", text:"¿Por quién puedo orar o a quién puedo animar con lo que aprendí hoy?"}
+];
+function viewEstudioInductivo(){
+  const mine = DATA.personalStudies.filter(s=> s.memberName===SESSION.name).sort((a,b)=> b.date.localeCompare(a.date));
+  return `
+    <div class="card">
+      <h3>🔍 Estudio inductivo de un versículo</h3>
+      <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 12px;">Elige tú el versículo que quieras estudiar. Responde 6 preguntas de observación/interpretación y 4 de aplicación.</p>
+      <button class="btn gold" onclick="openInductiveForm()">+ Nuevo estudio inductivo</button>
+    </div>
+    ${mine.map(s=>`
+      <div class="card song-card" onclick="openInductiveDetail('${s.id}')">
+        <span class="arrow">›</span>
+        <h3 style="margin:0;">📖 ${esc(s.reference)}</h3>
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:3px;">${fmtDate(s.date)}</div>
+      </div>
+    `).join("") || `<div class="empty"><div class="ic">🔍</div><p>Aún no has hecho ningún estudio inductivo.</p></div>`}
+  `;
+}
+function openInductiveForm(){
+  openModal(`
+    <h3>Nuevo estudio inductivo</h3>
+    <div class="field"><label>Referencia</label><input id="isRef" placeholder="Ej. Filipenses 4:6-7"></div>
+    <div class="field"><label>Escribe el versículo (con tus palabras o cópialo de tu Biblia)</label><textarea id="isVerse" rows="2"></textarea></div>
+    <h3 style="font-size:13px; margin-top:16px;">🔎 Observación e interpretación</h3>
+    ${INDUCTIVE_QUESTIONS.filter(q=>q.type==="obs").map(q=>`
+      <div class="field"><label>${esc(q.text)}</label><textarea id="${q.id}" rows="2"></textarea></div>
+    `).join("")}
+    <h3 style="font-size:13px; margin-top:16px;">💛 Aplicación</h3>
+    ${INDUCTIVE_QUESTIONS.filter(q=>q.type==="app").map(q=>`
+      <div class="field"><label>${esc(q.text)}</label><textarea id="${q.id}" rows="2"></textarea></div>
+    `).join("")}
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveInductiveStudy()">Guardar estudio</button>
+    </div>
+  `);
+}
+function saveInductiveStudy(){
+  const reference = document.getElementById("isRef").value.trim();
+  const verseText = document.getElementById("isVerse").value.trim();
+  if(!reference){ toast("Escribe la referencia del versículo"); return; }
+  const answers = {};
+  INDUCTIVE_QUESTIONS.forEach(q=>{ answers[q.id] = document.getElementById(q.id).value.trim(); });
+  DATA.personalStudies.push({id:uid(), memberName:SESSION.name, reference, verseText, date:todayISO(), answers});
+  markStudiedToday(SESSION.name);
+  save(); closeModal(); toast("Estudio guardado 📖"); render();
+}
+function openInductiveDetail(id){
+  const s = DATA.personalStudies.find(x=>x.id===id); if(!s) return;
+  const rows = INDUCTIVE_QUESTIONS.map(q=>`
+    <div style="margin-bottom:10px;"><div style="font-size:12px; font-weight:700; color:var(--ink-soft);">${esc(q.text)}</div>
+    <div style="font-size:13.5px; margin-top:2px;">${esc(s.answers[q.id]||"—")}</div></div>
+  `).join("");
+  openModal(`
+    <h3>📖 ${esc(s.reference)}</h3>
+    <div style="font-family:'Fraunces',serif; font-size:14.5px; margin-bottom:14px; color:var(--ink-soft);">"${esc(s.verseText)}"</div>
+    ${rows}
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn danger" onclick="deleteInductiveStudy('${s.id}')">Eliminar</button>
+    </div>
+  `);
+}
+function deleteInductiveStudy(id){
+  DATA.personalStudies = DATA.personalStudies.filter(x=>x.id!==id);
+  save(); closeModal(); toast("Estudio eliminado"); render();
+}
+
+/* ---------- ESTUDIO POR TEMAS ---------- */
+function viewEstudioTemas(){
+  const list = [...DATA.topics];
+  return `
+    ${can("editTopics") ? `<button class="btn gold" style="margin-bottom:14px;" onclick="openTopicAdminForm()">+ Agregar tema</button>` : ""}
+    ${list.map(t=>`
+      <div class="card song-card" onclick="openTopicDetail('${t.id}')">
+        <span class="arrow">›</span>
+        <h3 style="margin:0;">📖 ${esc(t.title)}</h3>
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:3px;">${esc(t.refs)}</div>
+      </div>
+    `).join("") || `<div class="empty"><div class="ic">📖</div><p>Aún no hay temas cargados.</p></div>`}
+  `;
+}
+function openTopicDetail(id){
+  const t = DATA.topics.find(x=>x.id===id); if(!t) return;
+  const paragraphs = t.content.split("\n\n").map(p=>`<p style="margin:0 0 12px; font-size:14px; line-height:1.6;">${esc(p)}</p>`).join("");
+  openModal(`
+    <h3>📖 ${esc(t.title)}</h3>
+    <div style="font-size:12px; color:var(--ink-soft); font-weight:700; margin-bottom:14px;">${esc(t.refs)}</div>
+    ${paragraphs}
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn gold" onclick="markTopicStudied('${t.id}')">✅ Ya lo estudié hoy</button>
+      ${can("editTopics") ? `<button class="btn danger" onclick="deleteTopic('${t.id}')">Eliminar</button>` : ""}
+    </div>
+  `);
+}
+function markTopicStudied(id){
+  markStudiedToday(SESSION.name);
+  closeModal(); toast("¡Bien hecho! Se registró tu estudio de hoy 🙌"); render();
+}
+function openTopicAdminForm(){
+  openModal(`
+    <h3>Agregar tema de estudio</h3>
+    <div class="field"><label>Título</label><input id="tpcTitle" placeholder="Ej. La gracia de Dios"></div>
+    <div class="field"><label>Referencias</label><input id="tpcRefs" placeholder="Ej. Efesios 2:8-9 · Romanos 5:1-2"></div>
+    <div class="field"><label>Explicación bíblica (con contexto)</label><textarea id="tpcContent" rows="8" placeholder="Separa los párrafos dejando una línea en blanco entre ellos"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveTopicAdmin()">Guardar tema</button>
+    </div>
+  `);
+}
+function saveTopicAdmin(){
+  const title = document.getElementById("tpcTitle").value.trim();
+  const refs = document.getElementById("tpcRefs").value.trim();
+  const content = document.getElementById("tpcContent").value.trim();
+  if(!title || !content){ toast("Falta el título o el contenido"); return; }
+  DATA.topics.push({id:uid(), title, refs, content});
+  save(); closeModal(); toast("Tema agregado"); render();
+}
+function deleteTopic(id){
+  DATA.topics = DATA.topics.filter(x=>x.id!==id);
+  save(); closeModal(); toast("Tema eliminado"); render();
+}
+
+/* ---------- PRÓXIMOS A BAUTIZAR ---------- */
+function viewBautismo(){
+  const mine = DATA.baptism.find(b=> b.memberName===SESSION.name);
+  const groups = {"Interesado":[], "Programado":[], "Bautizado":[]};
+  DATA.baptism.forEach(b=>{ (groups[b.status]||groups["Interesado"]).push(b); });
+  return `
+    <div class="section-head"><h2>Próximos a bautizar</h2><p>Registro de hermanos que desean bautizarse.</p></div>
+    ${!mine ? `<div class="card"><h3>💧 ¿Deseas bautizarte?</h3>
+        <p style="font-size:13px; color:var(--ink-soft); margin-bottom:10px;">Toca el botón y el Pastor se pondrá en contacto contigo para conversar y programar la fecha.</p>
+        <button class="btn gold" onclick="requestBaptism()">Quiero bautizarme</button>
+      </div>` : `<div class="card"><h3>💧 Tu registro</h3>
+        <p style="font-size:13px;">Estado: <span class="chip ${mine.status==='Bautizado'?'good':mine.status==='Programado'?'gold':'wine'}">${esc(mine.status)}</span></p>
+        ${mine.scheduledDate ? `<p style="font-size:13px;">📅 Fecha programada: ${fmtDate(mine.scheduledDate)}</p>` : ""}
+      </div>`}
+    ${can("editBaptism") ? Object.keys(groups).map(status=>`
+      <div class="card">
+        <h3>${status==='Interesado'?'🙋':status==='Programado'?'📅':'✅'} ${status} (${groups[status].length})</h3>
+        ${groups[status].map(b=>`
+          <div class="list-item">
+            <div class="main">
+              <div class="ttl">${esc(b.memberName)}</div>
+              <div class="meta">${b.scheduledDate? "Programado: "+fmtDate(b.scheduledDate) : "Registrado: "+fmtDate(b.date)}</div>
+            </div>
+            <button class="btn ghost small" onclick="manageBaptism('${b.id}')">Gestionar</button>
+          </div>
+        `).join("") || `<p style="font-size:12.5px; color:var(--ink-soft);">Nadie en esta categoría.</p>`}
+      </div>
+    `).join("") : ""}
+  `;
+}
+function requestBaptism(){
+  DATA.baptism.push({id:uid(), memberName:SESSION.name, date:todayISO(), status:"Interesado", scheduledDate:null, notes:""});
+  save(); toast("¡Registrado! El Pastor se pondrá en contacto contigo 💧"); render();
+}
+function manageBaptism(id){
+  const b = DATA.baptism.find(x=>x.id===id); if(!b) return;
+  openModal(`
+    <h3>${esc(b.memberName)}</h3>
+    <div class="field"><label>Estado</label>
+      <select id="bpStatus">
+        <option value="Interesado" ${b.status==='Interesado'?'selected':''}>Interesado</option>
+        <option value="Programado" ${b.status==='Programado'?'selected':''}>Programado</option>
+        <option value="Bautizado" ${b.status==='Bautizado'?'selected':''}>Bautizado</option>
+      </select>
+    </div>
+    <div class="field"><label>Fecha programada (opcional)</label><input type="date" id="bpDate" value="${b.scheduledDate||""}"></div>
+    <div class="field"><label>Notas</label><textarea id="bpNotes" rows="2">${esc(b.notes||"")}</textarea></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn danger" onclick="deleteBaptism('${b.id}')">Eliminar</button>
+      <button class="btn gold" onclick="saveBaptism('${b.id}')">Guardar</button>
+    </div>
+  `);
+}
+function saveBaptism(id){
+  const b = DATA.baptism.find(x=>x.id===id); if(!b) return;
+  b.status = document.getElementById("bpStatus").value;
+  b.scheduledDate = document.getElementById("bpDate").value || null;
+  b.notes = document.getElementById("bpNotes").value.trim();
+  save(); closeModal(); toast("Actualizado"); render();
+}
+function deleteBaptism(id){
+  DATA.baptism = DATA.baptism.filter(x=>x.id!==id);
+  save(); closeModal(); toast("Eliminado"); render();
+}
+
+/* ---------- MIS RETOS (rachas e insignias) ---------- */
+function viewRetos(){
+  const log = (DATA.studyLog||{})[SESSION.name] || {currentStreak:0, longestStreak:0, earnedBadges:[]};
+  const streak = effectiveStreak(SESSION.name);
+  const nextBadge = STUDY_BADGES.find(b=> !log.earnedBadges.includes(b.id));
+  return `
+    <div class="verse-hero" style="text-align:center;">
+      <div class="lbl" style="text-align:center;">🔥 TU RACHA ACTUAL</div>
+      <div class="txt" style="text-align:center; font-size:38px; font-weight:700;">${streak} ${streak===1?"día":"días"}</div>
+      <div class="ref" style="text-align:center;">Racha más larga: ${log.longestStreak||0} días</div>
+    </div>
+    ${streak===0 && log.lastDate ? `<div class="card" style="border-color:var(--bad);"><p style="font-size:13px; margin:0;">⚠️ Se rompió tu racha anterior — ¡pero cada día es una nueva oportunidad para empezar de nuevo!</p></div>` : ""}
+    ${nextBadge ? `<div class="card"><p style="font-size:13px; margin:0;">Faltan <b>${nextBadge.days - streak}</b> día(s) para tu próxima insignia: ${nextBadge.icon} ${nextBadge.label}</p></div>` : ""}
+    <div class="card">
+      <h3>🏅 Insignias de disciplina</h3>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(90px,1fr)); gap:12px; text-align:center;">
+        ${STUDY_BADGES.map(b=>{
+          const earned = (log.earnedBadges||[]).includes(b.id);
+          return `<div style="opacity:${earned?1:0.35};">
+            <div style="font-size:32px;">${b.icon}</div>
+            <div style="font-size:10.5px; font-weight:700; margin-top:4px;">${b.label}</div>
+          </div>`;
+        }).join("")}
+      </div>
+    </div>
+    <div class="card">
+      <p style="font-size:12px; color:var(--ink-soft); margin:0;">Cuenta como "estudiar hoy": completar un estudio inductivo, o marcar un tema como estudiado. Si falta un día, la racha se reinicia automáticamente — la idea es formar el hábito.</p>
+    </div>
+  `;
+}
+
+/* ---------- FORO: PREGUNTAS Y DEBATE ---------- */
+function viewForo(){
+  const list = [...DATA.forum].sort((a,b)=> b.date.localeCompare(a.date));
+  return `
+    <div class="section-head"><h2>Preguntas y debate</h2><p>Comparte una pregunta o tema bíblico para conversarlo entre hermanos.</p></div>
+    <button class="btn gold" style="margin-bottom:14px;" onclick="openTopicForm()">+ Nueva pregunta o tema</button>
+    ${list.map(t=>`
+      <div class="card song-card" onclick="openTopic('${t.id}')">
+        <span class="arrow">›</span>
+        <h3 style="margin:0;">${esc(t.title)}</h3>
+        <div style="font-size:13.5px; margin:6px 0; color:var(--ink);">${esc(t.body.slice(0,120))}${t.body.length>120?"…":""}</div>
+        <div class="meta" style="color:var(--ink-soft); font-size:12px;">${esc(t.author)} · ${fmtDate(t.date)} · 💬 ${(t.replies||[]).length} respuestas</div>
+      </div>
+    `).join("") || `<div class="empty"><div class="ic">💬</div><p>Sé el primero en compartir una pregunta o tema.</p></div>`}
+  `;
+}
+function openTopicForm(){
+  openModal(`
+    <h3>Nueva pregunta o tema</h3>
+    <div class="field"><label>Título</label><input id="tpTitle" placeholder="Ej. ¿Qué significa nacer de nuevo?"></div>
+    <div class="field"><label>Desarrolla tu pregunta o tema</label><textarea id="tpBody" rows="4" placeholder="Escribe aquí..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveTopic()">Publicar</button>
+    </div>
+  `);
+}
+function saveTopic(){
+  const title = document.getElementById("tpTitle").value.trim();
+  const body = document.getElementById("tpBody").value.trim();
+  if(!title || !body){ toast("Completa el título y el contenido"); return; }
+  DATA.forum.unshift({id:uid(), author:SESSION.name, title, body, date:todayISO(), replies:[]});
+  save(); closeModal(); toast("Publicado"); render();
+}
+function openTopic(id){
+  const t = DATA.forum.find(x=>x.id===id); if(!t) return;
+  const replies = (t.replies||[]).map(r=>`
+    <div class="list-item"><div class="main"><div class="ttl" style="font-size:13px;">${esc(r.author)}</div>
+      <div style="font-size:13.5px; margin:3px 0;">${esc(r.body)}</div>
+      <div class="meta" style="font-size:11px;">${fmtDate(r.date)}</div></div></div>
+  `).join("");
+  openModal(`
+    <h3>${esc(t.title)}</h3>
+    <div class="meta" style="margin-bottom:10px;">${esc(t.author)} · ${fmtDate(t.date)}</div>
+    <div style="font-size:14px; margin-bottom:16px;">${esc(t.body)}</div>
+    <h3 style="font-size:13.5px;">💬 Respuestas</h3>
+    ${replies || `<p style="font-size:12.5px; color:var(--ink-soft);">Aún no hay respuestas.</p>`}
+    <div class="field" style="margin-top:12px;"><textarea id="replyBody" rows="2" placeholder="Escribe tu respuesta..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cerrar</button>
+      <button class="btn gold" onclick="saveReply('${t.id}')">Responder</button>
+    </div>
+  `);
+}
+function saveReply(topicId){
+  const body = document.getElementById("replyBody").value.trim();
+  if(!body){ toast("Escribe tu respuesta"); return; }
+  const t = DATA.forum.find(x=>x.id===topicId); if(!t) return;
+  t.replies = t.replies || [];
+  t.replies.push({id:uid(), author:SESSION.name, body, date:todayISO()});
+  save(); openTopic(topicId); toast("Respuesta enviada");
+}
+
+/* ---------- CUMPLEAÑEROS ---------- */
+function monthDay(iso){ return iso ? iso.slice(5) : ""; }
+function todaysBirthdays(){
+  const md = monthDay(todayISO());
+  return DATA.members.filter(m=> m.birthDate && monthDay(m.birthDate)===md);
+}
+function monthBirthdays(){
+  const mm = todayISO().slice(5,7);
+  return DATA.members.filter(m=> m.birthDate && m.birthDate.slice(5,7)===mm)
+    .sort((a,b)=> a.birthDate.slice(8,10).localeCompare(b.birthDate.slice(8,10)));
+}
+const BIRTHDAY_MSG = "¡Feliz cumpleaños, {nombre}! 🎉🎂 Que Dios siga derramando sus bendiciones sobre tu vida en este nuevo año. De parte de toda la familia de Hay Vida en Jesús, Iglesia Bautista Misionera. 🙏💛";
+function viewCumpleanos(){
+  const today = todaysBirthdays();
+  const month = monthBirthdays();
+  const monthNames = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  const mm = +todayISO().slice(5,7)-1;
+  return `
+    <div class="section-head"><h2>Cumpleañeros</h2><p>Celebrando la vida de cada hermano.</p></div>
+    ${today.length ? today.map(m=>`
+      <div class="verse-hero" style="text-align:center;">
+        <div class="avatar-lg">${resolveBlobUrl(m.photoDataUrl) ? `<img src="${resolveBlobUrl(m.photoDataUrl)}" alt="">` : initials(m.name)}</div>
+        <div class="lbl" style="text-align:center;">🎉 HOY CELEBRAMOS A</div>
+        <div class="txt" style="text-align:center;">${BIRTHDAY_MSG.replace("{nombre}", esc(m.name))}</div>
+      </div>
+    `).join("") : ""}
+    <div class="card">
+      <div class="row" style="align-items:center; margin-bottom:6px;">
+        <h3 style="margin:0;">🎂 Cumpleañeros de ${monthNames[mm]}</h3>
+      </div>
+      ${month.length ? `<button class="btn ghost small" style="margin-bottom:10px;" onclick="shareBirthdaysWA()">📲 Compartir lista por WhatsApp</button>` : ""}
+      ${month.map(m=>`
+        <div class="list-item">
+          <div class="avatar-thumb">${resolveBlobUrl(m.photoDataUrl) ? `<img src="${resolveBlobUrl(m.photoDataUrl)}" alt="">` : initials(m.name)}</div>
+          <div class="main">
+            <div class="ttl">${esc(m.name)} ${monthDay(m.birthDate)===monthDay(todayISO()) ? '<span class="chip gold">🎉 Hoy</span>':""}</div>
+            <div class="meta">${fmtDateShort(m.birthDate)}</div>
+          </div>
+        </div>
+      `).join("") || `<div class="empty"><div class="ic">🎂</div><p>No hay cumpleañeros registrados este mes.</p></div>`}
+    </div>
+  `;
+}
+function shareBirthdaysWA(){
+  const month = monthBirthdays();
+  const monthNames = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  const mm = +todayISO().slice(5,7)-1;
+  const text = `🎂 *Cumpleañeros de ${monthNames[mm]} — ${DATA.config.churchName}*\n\n`+
+    month.map(m=> `• ${m.name} — ${fmtDateShort(m.birthDate)}`).join("\n");
+  window.open("https://wa.me/?text="+encodeURIComponent(text), "_blank");
+}
+
+/* ---------- MI PERFIL ---------- */
+function viewPerfil(){
+  const me = DATA.members.find(m=> m.name.toLowerCase()===SESSION.name.toLowerCase()) || {};
+  const theme = loadThemePref();
+  const accents = [
+    {id:"gold", label:"Dorado", c1:"#C79A3E", c2:"#152C42"},
+    {id:"emerald", label:"Esmeralda", c1:"#3F9169", c2:"#16324F"},
+    {id:"wine", label:"Vino", c1:"#B3452C", c2:"#16324F"},
+    {id:"sky", label:"Cielo", c1:"#2F7BAE", c2:"#16324F"}
+  ];
+  return `
+    <div class="section-head"><h2>Mi perfil</h2><p>Tu información personal dentro de la iglesia.</p></div>
+    <div class="card" style="text-align:center;">
+      <div class="avatar-lg" id="profileAvatarPreview">${resolveBlobUrl(me.photoDataUrl) ? `<img src="${resolveBlobUrl(me.photoDataUrl)}" alt="">` : initials(SESSION.name)}</div>
+      <div style="font-weight:700; font-size:15px;">${esc(SESSION.name)}</div>
+      <div style="font-size:12px; color:var(--ink-soft); margin-bottom:14px;">${ROLE_ICON[SESSION.role]} ${ROLE_LABELS[SESSION.role]}</div>
+      <div class="field" style="text-align:left;">
+        <label>Foto de perfil</label>
+        <input type="file" id="pfPhoto" accept="image/*">
+        <p style="font-size:11px; color:var(--ink-soft); margin-top:6px;">
+          No podemos traer automáticamente tu foto de WhatsApp (WhatsApp no lo permite por privacidad) — pero puedes subir la misma foto tú mismo(a) aquí.
+        </p>
+      </div>
+      <div class="field" style="text-align:left;">
+        <label>Teléfono</label>
+        <input id="pfPhone" value="${esc(me.phone||"")}" placeholder="000-000-0000">
+      </div>
+      <div class="field" style="text-align:left;">
+        <label>Fecha de nacimiento</label>
+        <input type="date" id="pfBirth" value="${me.birthDate||""}">
+      </div>
+      <button class="btn gold" onclick="savePerfil()">Guardar cambios</button>
+    </div>
+
+    <div class="card">
+      <h3>🎨 Apariencia de la app</h3>
+      <div class="field" style="text-align:left;">
+        <label>Tema</label>
+        <select id="pfThemeMode" onchange="setThemeMode(this.value)">
+          <option value="light" ${theme.mode==='light'?'selected':''}>☀️ Claro</option>
+          <option value="dark" ${theme.mode==='dark'?'selected':''}>🌙 Oscuro</option>
+          <option value="auto" ${theme.mode==='auto'?'selected':''}>📱 Automático (según tu teléfono)</option>
+        </select>
+      </div>
+      <label style="font-size:12.5px; font-weight:600; color:var(--ink-soft); display:block; margin-bottom:8px;">Color de acento</label>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        ${accents.map(a=>`
+          <button type="button" onclick="setThemeAccent('${a.id}')" title="${a.label}"
+            style="width:44px;height:44px;border-radius:50%;border:${theme.accent===a.id?'3px solid var(--ink)':'2px solid var(--line)'};
+            background:linear-gradient(160deg, ${a.c1}, ${a.c2}); cursor:pointer;"></button>
+        `).join("")}
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🔔 Recordatorio para estudiar</h3>
+      <div class="check-row">
+        <input type="checkbox" id="pfStudyReminder" ${me.studyReminderEnabled?"checked":""}>
+        <div class="nm">Avisarme cada día a esta hora</div>
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <input type="time" id="pfStudyTime" value="${me.studyReminderTime||"19:00"}">
+      </div>
+      <p style="font-size:11px; color:var(--ink-soft);">Funciona mientras uses la app en este dispositivo y hayas permitido las notificaciones.</p>
+      <button class="btn ghost small" onclick="saveStudyReminder()">Guardar recordatorio</button>
+    </div>
+  `;
+}
+document.addEventListener("change", (e)=>{
+  if(e.target && e.target.id === "pfPhoto"){
+    const file = e.target.files[0]; if(!file) return;
+    if(file.size > 3*1024*1024){ toast("La foto es muy pesada (máx. ~3 MB)"); e.target.value=""; return; }
+    window.__pendingPhotoFile = file;
+    // vista previa instantánea, aunque todavía no se haya subido
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const prev = document.getElementById("profileAvatarPreview");
+      if(prev) prev.innerHTML = `<img src="${reader.result}" alt="">`;
+    };
+    reader.readAsDataURL(file);
+  }
+});
+function savePerfil(){
+  const phone = document.getElementById("pfPhone").value.trim();
+  const birthDate = document.getElementById("pfBirth").value || null;
+  const finish = (photoDataUrl)=>{
+    syncMemberFromProfile(SESSION.name, { phone, birthDate, photoDataUrl });
+    const u = DATA.users.find(x=> x.id === SESSION.userId);
+    if(u){ u.phone = phone; if(birthDate) u.birthDate = birthDate; if(photoDataUrl) u.photoDataUrl = photoDataUrl; }
+    window.__pendingPhotoFile = null;
+    save(); toast("Perfil actualizado"); render();
+  };
+  if(window.__pendingPhotoFile){
+    toast("Subiendo foto…");
+    uploadToStorage(window.__pendingPhotoFile, "perfiles", (url)=> finish(url), ()=>{ toast("No se pudo subir la foto"); finish(null); });
+  } else {
+    finish(null);
+  }
+}
+
+/* ---------- APARIENCIA (tema y color) ---------- */
+function loadThemePref(){
+  try{ const raw = localStorage.getItem("hvj_theme"); if(raw) return JSON.parse(raw); }catch(e){}
+  return {mode:"light", accent:"gold"};
+}
+function saveThemePref(t){ try{ localStorage.setItem("hvj_theme", JSON.stringify(t)); }catch(e){} }
+function applyTheme(){
+  const t = loadThemePref();
+  const root = document.documentElement;
+  if(t.mode==="auto"){ root.removeAttribute("data-theme"); }
+  else{ root.setAttribute("data-theme", t.mode); }
+  if(t.accent && t.accent!=="gold"){ root.setAttribute("data-accent", t.accent); }
+  else{ root.removeAttribute("data-accent"); }
+}
+function setThemeMode(mode){ const t = loadThemePref(); t.mode = mode; saveThemePref(t); applyTheme(); }
+function setThemeAccent(accent){ const t = loadThemePref(); t.accent = accent; saveThemePref(t); applyTheme(); render(); }
+
+/* ---------- RECORDATORIO DE ESTUDIO ---------- */
+function saveStudyReminder(){
+  const enabled = document.getElementById("pfStudyReminder").checked;
+  const time = document.getElementById("pfStudyTime").value || "19:00";
+  syncMemberFromProfile(SESSION.name, { studyReminderEnabled: enabled, studyReminderTime: time });
+  if(enabled && "Notification" in window && Notification.permission==="default"){
+    Notification.requestPermission();
+  }
+  save(); toast("Recordatorio guardado"); render();
+}
+function checkStudyReminder(){
+  if(!SESSION) return;
+  const me = DATA.members.find(m=> m.name.toLowerCase()===SESSION.name.toLowerCase());
+  if(!me || !me.studyReminderEnabled || !me.studyReminderTime) return;
+  const now = new Date();
+  const parts = me.studyReminderTime.split(":");
+  const hh = +parts[0], mm = +parts[1]||0;
+  const todayKey = todayISO();
+  if(localStorage.getItem("hvj_study_notified_date")===todayKey) return;
+  if(now.getHours()>hh || (now.getHours()===hh && now.getMinutes()>=mm)){
+    if("Notification" in window && Notification.permission==="granted"){
+      try{ new Notification("📖 Hora de estudiar", { body:"No pierdas tu racha — dedica unos minutos a la Palabra hoy.", tag:"study_reminder" }); }catch(e){}
+    }
+    try{ localStorage.setItem("hvj_study_notified_date", todayKey); }catch(e){}
+  }
+}
+
+/* ---------- FINANZAS ---------- */
+function viewFinanzas(){
+  if(!can("manageFinance")){
+    return `<div class="finance-guard"><div style="font-size:32px;">🔒</div><p>Esta sección es solo para Pastor y Tesorería.</p></div>`;
+  }
+  const list = [...DATA.finances].sort((a,b)=> b.date.localeCompare(a.date));
+  const entradas = DATA.finances.filter(f=> f.direction!=="salida").reduce((s,f)=> s+Number(f.amount||0), 0);
+  const salidas = DATA.finances.filter(f=> f.direction==="salida").reduce((s,f)=> s+Number(f.amount||0), 0);
+  const balance = entradas - salidas;
+  const thisMonth = new Date().toISOString().slice(0,7);
+  const monthEntradas = DATA.finances.filter(f=> f.date.slice(0,7)===thisMonth && f.direction!=="salida").reduce((s,f)=> s+Number(f.amount||0), 0);
+  const monthSalidas = DATA.finances.filter(f=> f.date.slice(0,7)===thisMonth && f.direction==="salida").reduce((s,f)=> s+Number(f.amount||0), 0);
+
+  return `
+    <div class="section-head"><h2>Diezmos y ofrendas</h2><p>Entradas, salidas y balance de la iglesia. Solo visible para Pastor y Tesorería.</p></div>
+    <div class="stat-grid">
+      <div class="stat"><div class="n" style="color:var(--good);">$${entradas.toLocaleString()}</div><div class="l">Entradas totales</div></div>
+      <div class="stat"><div class="n" style="color:var(--bad);">$${salidas.toLocaleString()}</div><div class="l">Salidas totales</div></div>
+      <div class="stat"><div class="n">$${balance.toLocaleString()}</div><div class="l">Balance actual</div></div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="stat"><div class="n" style="color:var(--good);">$${monthEntradas.toLocaleString()}</div><div class="l">Entradas este mes</div></div>
+      <div class="stat"><div class="n" style="color:var(--bad);">$${monthSalidas.toLocaleString()}</div><div class="l">Salidas este mes</div></div>
+    </div>
+    <div class="row" style="margin-bottom:14px;">
+      <button class="btn gold" onclick="openFinanceForm()">+ Registrar movimiento</button>
+      <button class="btn ghost" onclick="openReportForm()">📄 Generar reporte</button>
+      ${can("settings") && list.length ? `<button class="btn danger" onclick="resetFinances()">🗑️ Borrar todo y reiniciar en $0</button>` : ""}
+    </div>
+    <div class="card">
+      <h3>Historial</h3>
+      ${list.map(f=>{
+        const isOut = f.direction==="salida";
+        return `
+        <div class="transaction">
+          <div>
+            <div class="ttl" style="font-size:13.5px;">${isOut?"🔻":"🔺"} ${esc(f.type)} ${f.member? "· "+esc(f.member):""}</div>
+            <div class="meta">${fmtDate(f.date)} ${f.note? "· "+esc(f.note):""}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="amt ${isOut?"":"in"}" style="${isOut?"color:var(--bad);":""}">${isOut?"-":"+"}$${Number(f.amount).toLocaleString()}</div>
+            ${can("settings") ? `<button class="btn ghost small" onclick="deleteFinanceEntry('${f.id}')">🗑️</button>` : ""}
+          </div>
+        </div>
+      `;}).join("") || `<div class="empty"><p>Sin movimientos registrados.</p></div>`}
+    </div>
+  `;
+}
+function openFinanceForm(){
+  const opts = DATA.members.filter(m=>m.active).map(m=>`<option value="${esc(m.name)}">${esc(m.name)}</option>`).join("");
+  openModal(`
+    <h3>Registrar movimiento</h3>
+    <div class="field"><label>Movimiento</label>
+      <select id="fDirection"><option value="entrada">🔺 Entrada (ingreso)</option><option value="salida">🔻 Salida (gasto)</option></select>
+    </div>
+    <div class="field"><label>Tipo</label>
+      <select id="fType"><option>Diezmo</option><option>Ofrenda</option><option>Ofrenda especial</option><option>Donación</option><option>Gasto de servicio</option><option>Mantenimiento</option><option>Ayuda social</option><option>Otro</option></select>
+    </div>
+    <div class="field"><label>Miembro (opcional, solo para entradas)</label>
+      <select id="fMember"><option value="">— General / anónimo —</option>${opts}</select>
+    </div>
+    <div class="row">
+      <div class="field"><label>Monto</label><input type="number" id="fAmount" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="field"><label>Fecha</label><input type="date" id="fDate" value="${todayISO()}"></div>
+    </div>
+    <div class="field"><label>Nota (opcional)</label><input id="fNote" placeholder="Ej. Ofrenda de misiones / Pago de electricidad"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveFinance()">Guardar</button>
+    </div>
+  `);
+}
+function deleteFinanceEntry(id){
+  if(!can("settings")){ toast("Solo la cuenta del Pastor puede borrar movimientos"); return; }
+  const ok = confirm("¿Eliminar este movimiento? No se puede deshacer.");
+  if(!ok) return;
+  DATA.finances = DATA.finances.filter(f=>f.id!==id);
+  save(); toast("Movimiento eliminado"); render();
+}
+function resetFinances(){
+  if(!can("settings")){ toast("Solo la cuenta del Pastor puede reiniciar las finanzas"); return; }
+  const ok = confirm("Esto borrará TODOS los movimientos de diezmos y ofrendas registrados (incluidos los de prueba) y dejará el balance en $0. ¿Confirmas?");
+  if(!ok) return;
+  DATA.finances = [];
+  save(); toast("Finanzas reiniciadas en $0"); render();
+}
+function saveFinance(){
+  const direction = document.getElementById("fDirection").value;
+  const type = document.getElementById("fType").value;
+  const member = document.getElementById("fMember").value;
+  const amount = parseFloat(document.getElementById("fAmount").value);
+  const date = document.getElementById("fDate").value;
+  const note = document.getElementById("fNote").value.trim();
+  if(!amount || amount<=0){ toast("Ingresa un monto válido"); return; }
+  DATA.finances.push({id:uid(), direction, type, member, amount, date, note});
+  save(); closeModal(); toast("Movimiento registrado"); render();
+}
+
+/* ---------- REPORTE DE FINANZAS ---------- */
+function openReportForm(){
+  const thisMonth = new Date().toISOString().slice(0,7);
+  openModal(`
+    <h3>Generar reporte</h3>
+    <div class="row">
+      <div class="field"><label>Desde</label><input type="date" id="repFrom" value="${thisMonth}-01"></div>
+      <div class="field"><label>Hasta</label><input type="date" id="repTo" value="${todayISO()}"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="buildReport()">Ver reporte</button>
+    </div>
+  `);
+}
+function buildReport(){
+  const from = document.getElementById("repFrom").value;
+  const to = document.getElementById("repTo").value;
+  const items = DATA.finances.filter(f=> f.date>=from && f.date<=to).sort((a,b)=> a.date.localeCompare(b.date));
+  const entradas = items.filter(f=>f.direction!=="salida").reduce((s,f)=>s+Number(f.amount||0),0);
+  const salidas = items.filter(f=>f.direction==="salida").reduce((s,f)=>s+Number(f.amount||0),0);
+  const balance = entradas - salidas;
+  const byType = {};
+  items.forEach(f=>{ byType[f.type] = (byType[f.type]||0) + (f.direction==="salida"? -1:1)*Number(f.amount||0); });
+
+  const rowsHtml = items.map(f=>`
+    <tr>
+      <td>${fmtDateShort(f.date)}</td>
+      <td>${f.direction==="salida"?"Salida":"Entrada"}</td>
+      <td>${esc(f.type)}</td>
+      <td>${esc(f.member||f.note||"—")}</td>
+      <td style="text-align:right; color:${f.direction==="salida"?"#B3452C":"#3F7A54"};">${f.direction==="salida"?"-":"+"}$${Number(f.amount).toLocaleString()}</td>
+    </tr>`).join("");
+  const typeRowsHtml = Object.entries(byType).map(([t,v])=>`<tr><td>${esc(t)}</td><td style="text-align:right;">$${v.toLocaleString()}</td></tr>`).join("");
+
+  const reportHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+  <title>Reporte financiero — ${DATA.config.churchName}</title>
+  <style>
+    body{font-family:Georgia,serif; max-width:720px; margin:30px auto; padding:0 18px; color:#1E2530;}
+    h1{font-size:20px; margin-bottom:2px;} .sub{color:#5B6472; font-size:13px; margin-bottom:18px;}
+    .totals{display:flex; gap:14px; margin:18px 0; flex-wrap:wrap;}
+    .box{border:1px solid #DED3B8; border-radius:10px; padding:10px 16px; text-align:center;}
+    .box .n{font-size:20px; font-weight:bold;} .box .l{font-size:11px; color:#5B6472;}
+    table{width:100%; border-collapse:collapse; margin-top:10px; font-size:13px;}
+    th, td{border-bottom:1px solid #DED3B8; padding:7px 6px; text-align:left;}
+    th{background:#F1EADA;}
+    @media print{ button{display:none;} }
+  </style></head><body>
+    <h1>Reporte de diezmos y ofrendas</h1>
+    <div class="sub">${esc(DATA.config.churchName)} · Del ${fmtDate(from)} al ${fmtDate(to)} · Generado por ${esc(SESSION.name)}</div>
+    <div class="totals">
+      <div class="box"><div class="n" style="color:#3F7A54;">$${entradas.toLocaleString()}</div><div class="l">Entradas</div></div>
+      <div class="box"><div class="n" style="color:#B3452C;">$${salidas.toLocaleString()}</div><div class="l">Salidas</div></div>
+      <div class="box"><div class="n">$${balance.toLocaleString()}</div><div class="l">Balance</div></div>
+    </div>
+    <h3>Resumen por categoría</h3>
+    <table>${typeRowsHtml || "<tr><td>Sin movimientos en el periodo</td></tr>"}</table>
+    <h3>Detalle de movimientos</h3>
+    <table><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Miembro / Nota</th><th style="text-align:right;">Monto</th></tr>
+    ${rowsHtml || "<tr><td colspan='5'>Sin movimientos en el periodo</td></tr>"}</table>
+    <button onclick="window.print()" style="margin-top:20px; padding:10px 16px; border-radius:8px; border:none; background:#C79A3E; color:#382a09; font-weight:bold; cursor:pointer;">🖨️ Imprimir / Guardar como PDF</button>
+  </body></html>`;
+
+  const blob = new Blob([reportHtml], {type:"text/html"});
+  const url = URL.createObjectURL(blob);
+  window.open(url, "_blank");
+
+  const waText = `📊 *Reporte de finanzas — ${DATA.config.churchName}*\n`+
+    `Del ${fmtDate(from)} al ${fmtDate(to)}\n\n`+
+    `🔺 Entradas: $${entradas.toLocaleString()}\n`+
+    `🔻 Salidas: $${salidas.toLocaleString()}\n`+
+    `💰 Balance: $${balance.toLocaleString()}\n\n`+
+    Object.entries(byType).map(([t,v])=> `• ${t}: $${v.toLocaleString()}`).join("\n");
+
+  closeModal();
+  openModal(`
+    <h3>Reporte generado</h3>
+    <p style="font-size:13px; color:var(--ink-soft); margin-bottom:14px;">Se abrió en una pestaña nueva, lista para imprimir o guardar como PDF. También puedes enviar un resumen corto y bien formateado por WhatsApp.</p>
+    <div class="modal-actions">
+      <a class="btn ghost" style="text-decoration:none; text-align:center;" href="${url}" target="_blank">↗️ Abrir reporte de nuevo</a>
+      <button class="btn gold" onclick="window.open('https://wa.me/?text='+encodeURIComponent(\`${waText.replace(/`/g,"'")}\`),'_blank')">📲 Enviar resumen por WhatsApp</button>
+    </div>
+  `);
+}
+
+/* ---------- AJUSTES (solo Pastor) ---------- */
+function viewAjustes(){
+  if(!can("settings")){
+    return `<div class="finance-guard"><div style="font-size:32px;">🔒</div><p>Solo el Pastor puede ver esta sección.</p></div>`;
+  }
+  return `
+    <div class="section-head"><h2>Ajustes</h2><p>Configuración general y PINs de acceso.</p></div>
+    <div class="card">
+      <h3>Nombre de la iglesia</h3>
+      <div class="field"><input id="cfgName" value="${esc(DATA.config.churchName)}"></div>
+      <button class="btn ghost small" onclick="saveChurchName()">Guardar nombre</button>
+    </div>
+    <div class="card">
+      <h3>PINs de acceso por rol</h3>
+      <div class="field"><label>PIN del Pastor</label><input id="pinPastor" value="${esc(DATA.config.pins.pastor)}"></div>
+      <div class="field"><label>PIN de Diáconos</label><input id="pinDiacono" value="${esc(DATA.config.pins.diacono)}"></div>
+      <div class="field"><label>PIN de Tesorería</label><input id="pinTesoreria" value="${esc(DATA.config.pins.tesoreria)}"></div>
+      <button class="btn gold small" onclick="savePins()">Guardar PINs</button>
+    </div>
+    <div class="card">
+      <h3>Sobre este prototipo</h3>
+      <p style="font-size:13px; color:var(--ink-soft); line-height:1.6;">
+        Esta es una demostración funcional. Los datos se guardan solo en este navegador/dispositivo, para que puedas
+        mostrarle al pastor y al equipo cómo se vería la app real. Para una versión donde todos los miembros vean
+        la misma información desde sus propios celulares, se necesita conectar la app a una base de datos compartida.
+      </p>
+    </div>
+  `;
+}
+function saveChurchName(){
+  DATA.config.churchName = document.getElementById("cfgName").value.trim() || DATA.config.churchName;
+  save(); toast("Nombre actualizado"); render();
+}
+function savePins(){
+  DATA.config.pins.pastor = document.getElementById("pinPastor").value.trim();
+  DATA.config.pins.diacono = document.getElementById("pinDiacono").value.trim();
+  DATA.config.pins.tesoreria = document.getElementById("pinTesoreria").value.trim();
+  save(); toast("PINs actualizados");
+}
+
+/* ============================================================
+   CONECTIVIDAD (funciona sin internet una vez cargada)
+   ============================================================ */
+function updateConnBadge(){
+  updateSyncBadge();
+}
+window.addEventListener('online', updateConnBadge);
+window.addEventListener('offline', updateConnBadge);
+
+/* ============================================================
+   RECORDATORIOS DE EVENTOS (notificaciones locales, app abierta)
+   ============================================================ */
+function getNotified(){ try{ return JSON.parse(localStorage.getItem("hvj_notified")||"[]"); }catch(e){ return []; } }
+function addNotified(key){ const arr=getNotified(); arr.push(key); try{ localStorage.setItem("hvj_notified", JSON.stringify(arr)); }catch(e){} }
+function getAllowLate(){ try{ return localStorage.getItem("hvj_allow_late")==="1"; }catch(e){ return false; } }
+function setAllowLate(v){ try{ localStorage.setItem("hvj_allow_late", v?"1":"0"); }catch(e){} }
+
+function requestReminderPermission(){
+  if(!("Notification" in window)){ toast("Este navegador no soporta notificaciones"); return; }
+  Notification.requestPermission().then(p=>{
+    if(p==="granted"){ toast("Recordatorios activados 🔔"); checkReminders(); openReminders(); }
+    else{ toast("No se activó el permiso de notificaciones"); }
+  });
+}
+// Convierte la fecha + hora libre del evento ("10:00 AM") a un objeto Date real,
+// usando la zona horaria local del dispositivo (la del país donde se abre la app).
+function parseEventDateTime(e){
+  const base = new Date(e.date+"T12:00:00"); // mediodía por defecto si no hay hora
+  if(!e.time) return base;
+  const m = e.time.match(/(\d{1,2}):?(\d{0,2})\s*(AM|PM|am|pm)?/);
+  if(!m) return base;
+  let hh = parseInt(m[1],10);
+  const mm = m[2] ? parseInt(m[2],10) : 0;
+  const ap = (m[3]||"").toUpperCase();
+  if(ap==="PM" && hh<12) hh += 12;
+  if(ap==="AM" && hh===12) hh = 0;
+  const d = new Date(e.date+"T00:00:00");
+  d.setHours(hh, mm, 0, 0);
+  return d;
+}
+function upcomingEventsWithin(days){
+  const start = new Date(new Date().toDateString());
+  const limit = new Date(start); limit.setDate(limit.getDate()+days);
+  return DATA.events.filter(e=>{
+    const ed = new Date(e.date+"T00:00:00");
+    return ed >= start && ed <= limit;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+}
+function isMadrugada(d){ const h = d.getHours(); return h>=0 && h<6; }
+
+function checkReminders(){
+  const notified = getNotified();
+  const now = new Date();
+  const allowLate = getAllowLate();
+
+  DATA.events.filter(e=> e.remind !== false).forEach(e=>{
+    const eventDT = parseEventDateTime(e);
+    if(eventDT < now) return; // ya pasó
+
+    [{hrs:24, label:"mañana a esta hora"}, {hrs:2, label:"en 2 horas"}].forEach(step=>{
+      const triggerAt = new Date(eventDT.getTime() - step.hrs*60*60*1000);
+      const key = e.id+"_"+step.hrs+"h";
+      if(notified.includes(key)) return;
+      if(now < triggerAt) return; // aún no llega el momento de avisar
+
+      // Ya se cruzó el umbral de aviso. Si estamos en la madrugada y el
+      // miembro no permitió avisos de madrugada, esperamos al siguiente chequeo.
+      if(isMadrugada(now) && !allowLate) return;
+
+      if("Notification" in window && Notification.permission==="granted"){
+        try{
+          new Notification("⏰ "+e.title, {
+            body: (step.hrs===24 ? "Es mañana " : "Empieza en 2 horas — ") + (e.time? e.time+" · ":"") + e.place,
+            tag:key
+          });
+        }catch(err){}
+      }
+      addNotified(key);
+    });
+  });
+
+  const bellDot = document.getElementById('bellDot');
+  if(bellDot) bellDot.style.display = upcomingEventsWithin(7).length ? "block" : "none";
+}
+function startReminderWatch(){
+  checkReminders();
+  checkMessageNotifications();
+  checkStudyReminder();
+  setInterval(()=>{ checkReminders(); checkMessageNotifications(); checkStudyReminder(); }, 60000);
+}
+/* ---------- NOTIFICACIONES DE MENSAJES NUEVOS ---------- */
+function unreadMsgCount(){
+  if(!SESSION) return 0;
+  return DATA.messages.filter(m=> (m.to==="todos"||m.to===SESSION.name) && !(m.readBy||[]).includes(SESSION.name)).length;
+}
+function getMsgNotified(){ try{ return JSON.parse(localStorage.getItem("hvj_msg_notified")||"[]"); }catch(e){ return []; } }
+function addMsgNotified(id){ const a=getMsgNotified(); a.push(id); try{ localStorage.setItem("hvj_msg_notified", JSON.stringify(a)); }catch(e){} }
+function checkMessageNotifications(){
+  if(!SESSION) return;
+  const notified = getMsgNotified();
+  const mine = DATA.messages.filter(m=> (m.to==="todos"||m.to===SESSION.name) && m.from!==SESSION.name && !(m.readBy||[]).includes(SESSION.name));
+  mine.forEach(m=>{
+    if(!notified.includes(m.id)){
+      if("Notification" in window && Notification.permission==="granted"){
+        try{ new Notification("✉️ Nuevo mensaje de "+m.from, { body: m.subject, tag:"msg_"+m.id }); }catch(err){}
+      }
+      addMsgNotified(m.id);
+    }
+  });
+}
+function openReminders(){
+  const upcoming = upcomingEventsWithin(30);
+  const perm = ("Notification" in window) ? Notification.permission : "unsupported";
+  openModal(`
+    <h3>🔔 Recordatorios de eventos</h3>
+    <p style="font-size:12px; color:var(--ink-soft); margin:-6px 0 14px;">Avisan 24 horas y 2 horas antes de cada evento, mientras tengas la app abierta.</p>
+    ${perm!=="granted" ? `<div class="card" style="margin-bottom:14px;">
+        <p style="font-size:13px; color:var(--ink-soft); margin:0 0 10px;">Activa las notificaciones para recibir el aviso en tu navegador.</p>
+        <button class="btn gold small" onclick="requestReminderPermission()">Activar notificaciones</button>
+      </div>` : `<p style="font-size:12.5px; color:var(--good); font-weight:700; margin-bottom:10px;">✓ Notificaciones activadas en este dispositivo</p>`}
+    <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft); margin-bottom:16px; background:var(--paper-2); padding:10px 12px; border-radius:10px;">
+      <input type="checkbox" id="allowLateToggle" ${getAllowLate()?"checked":""} onchange="setAllowLate(this.checked)">
+      🌙 Permitir que me avisen de madrugada (12:00am–6:00am). Si no lo activas, esos avisos se retrasan hasta las 6:00am.
+    </label>
+    ${upcoming.map(e=>`
+      <div class="list-item">
+        <div class="main">
+          <div class="ttl">${esc(e.title)}</div>
+          <div class="meta">${fmtDate(e.date)} ${e.time? "· "+esc(e.time):""}</div>
+        </div>
+        <label style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--ink-soft); white-space:nowrap;">
+          <input type="checkbox" ${e.remind!==false?"checked":""} onchange="toggleRemind('${e.id}', this.checked)"> avisar
+        </label>
+      </div>
+    `).join("") || `<div class="empty"><p>No hay eventos en los próximos 30 días.</p></div>`}
+    <div class="modal-actions"><button class="btn ghost" onclick="closeModal()">Cerrar</button></div>
+  `);
+}
+function toggleRemind(id, val){ const e = DATA.events.find(x=>x.id===id); if(e){ e.remind = val; save(); } }
+document.getElementById('bellBtn').addEventListener('click', openReminders);
+
+/* ============================================================
+   INICIO
+   ============================================================ */
+(function init(){
+  applyTheme();
+  initFirebase();
+})();
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>

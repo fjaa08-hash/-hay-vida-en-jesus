@@ -1,0 +1,17 @@
+{
+  "name": "Hay Vida en Jesús — Iglesia",
+  "short_name": "Hay Vida en Jesús",
+  "description": "App de la Iglesia Bautista Misionera Hay Vida en Jesús",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#152C42",
+  "theme_color": "#152C42",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
