@@ -622,7 +622,9 @@ document.getElementById("googleLoginBtn").addEventListener("click", ()=>{
 function resolveSessionFromGoogleUser(user){
   const existing = DATA.users.find(u=> (u.email||"").toLowerCase() === (user.email||"").toLowerCase());
   if(existing){
-    if(user.photoURL && existing.photoDataUrl !== user.photoURL){
+    // Solo usamos la foto de Google como valor por defecto si todavía no hay
+    // ninguna foto guardada — nunca reemplazamos una foto que la persona subió a mano.
+    if(user.photoURL && !existing.photoDataUrl){
       existing.photoDataUrl = user.photoURL;
       syncMemberFromProfile(existing.name, { photoDataUrl: user.photoURL });
       save();
