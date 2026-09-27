@@ -414,7 +414,31 @@ function showGoogleLoginReady(){
 let gotFirstSnapshot = false;
 function startFirestoreListener(){
   docRef = db.collection("church").doc("main");
-  docRef.onSnapshot((snap)=>{
+  // Salvavidas: si en 10 segundos no llega ninguna confirmación real del servidor,
+  // seguimos con los datos de este dispositivo para que la app nunca se quede trabada.
+  const safetyTimer = setTimeout(()=>{
+    if(!gotFirstSnapshot){
+      console.warn("Firestore tardó demasiado — entrando en modo local");
+      window.__lastFirebaseError = "tardó demasiado en confirmar (revisa tu internet o las Reglas de Firestore)";
+      gotFirstSnapshot = true;
+      DATA = loadLocalFallback();
+      firebaseOk = false;
+      updateSyncBadge();
+      const loadingEl = document.getElementById("authLoading");
+      if(loadingEl) loadingEl.style.display = "none";
+      const user = firebase.auth().currentUser;
+      if(user){ resolveSessionFromGoogleUser(user); }
+    }
+  }, 10000);
+  docRef.onSnapshot({ includeMetadataChanges: true }, (snap)=>{
+    // Si esto viene solo de la caché local (todavía sin confirmar por el servidor)
+    // y dice que "no existe", NO lo tomamos como verdad — podría ser una lectura
+    // vieja de un momento sin conexión. Esperamos a que el servidor lo confirme
+    // para evitar crear (y sobrescribir) una base nueva por error.
+    if(!snap.exists && snap.metadata.fromCache){
+      return;
+    }
+    clearTimeout(safetyTimer);
     try{
       if(snap.exists){
         DATA = migrate(snap.data());
@@ -442,6 +466,7 @@ function startFirestoreListener(){
       buildTabs();
     }
   }, (err)=>{
+    clearTimeout(safetyTimer);
     console.error("Firestore onSnapshot error:", err);
     window.__lastFirebaseError = "Firestore: " + (err && err.code ? err.code : (err && err.message ? err.message : err));
     firebaseOk = false;
