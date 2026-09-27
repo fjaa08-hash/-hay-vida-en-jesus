@@ -248,43 +248,25 @@
     <p class="sub">Iglesia Bautista Misionera — App de la congregación</p>
     <p id="authLoading" style="text-align:center; font-size:12px; color:var(--gold); font-weight:700; margin:-8px 0 16px;">🔄 Conectando con la base de datos de la iglesia…</p>
 
-    <div class="auth-switch">
-      <button class="as-btn active" data-mode="login" id="modeLoginBtn">Iniciar sesión</button>
-      <button class="as-btn" data-mode="signup" id="modeSignupBtn">Crear cuenta</button>
+    <div id="googleLoginPanel">
+      <button id="googleLoginBtn" class="btn gold" disabled style="display:flex; align-items:center; justify-content:center; gap:10px;">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+        Iniciar sesión con Google
+      </button>
+      <p class="err" id="googleErr"></p>
+      <p class="pin-hint">Por ahora solo se puede entrar con una cuenta de Google. Diáconos, Tesorería y Pastor necesitarán el código de invitación justo después de iniciar sesión.</p>
     </div>
 
-    <!-- LOGIN -->
-    <form id="loginForm" class="auth-panel active">
+    <!-- Se muestra solo la primera vez que un correo de Google entra a la app -->
+    <form id="completeProfileForm" class="auth-panel" style="display:none;">
+      <p style="font-size:12.5px; color:var(--ink-soft); margin:-4px 0 14px;">¡Bienvenido/a! Completa tu registro para terminar.</p>
       <div class="field">
-        <label>Correo electrónico</label>
-        <input type="email" id="liEmail" placeholder="tucorreo@ejemplo.com" autocomplete="username">
-      </div>
-      <div class="field">
-        <label>Contraseña</label>
-        <input type="password" id="liPassword" placeholder="••••••••" autocomplete="current-password">
-      </div>
-      <div class="err" id="loginErr"></div>
-      <button type="submit" class="btn gold" disabled>Entrar</button>
-      <p class="pin-hint">¿Primera vez? Toca "Crear cuenta" arriba.</p>
-    </form>
-
-    <!-- SIGNUP -->
-    <form id="signupForm" class="auth-panel">
-      <div class="field">
-        <label>Nombre completo</label>
-        <input type="text" id="suName" placeholder="Ej. María Pérez" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Correo electrónico</label>
-        <input type="email" id="suEmail" placeholder="tucorreo@ejemplo.com" autocomplete="username">
-      </div>
-      <div class="field">
-        <label>Contraseña</label>
-        <input type="password" id="suPassword" placeholder="Mínimo 4 caracteres" autocomplete="new-password">
+        <label>Tu nombre</label>
+        <input type="text" id="cpName" placeholder="Ej. María Pérez">
       </div>
       <div class="field">
         <label>Fecha de nacimiento</label>
-        <input type="date" id="suBirth">
+        <input type="date" id="cpBirth">
       </div>
       <div class="role-grid" id="roleGrid">
         <button type="button" class="role-btn active" data-role="miembro">
@@ -306,11 +288,10 @@
       </div>
       <div class="field" id="codeField" style="display:none;">
         <label>Código de invitación del liderazgo</label>
-        <input type="password" id="suCode" inputmode="numeric" placeholder="••••" autocomplete="off">
+        <input type="password" id="cpCode" inputmode="numeric" placeholder="••••" autocomplete="off">
       </div>
       <div class="err" id="signupErr"></div>
-      <button type="submit" class="btn gold" disabled>Crear mi cuenta</button>
-      <p class="pin-hint" id="pinHint">Códigos de demostración — el Pastor puede cambiarlos en Ajustes.</p>
+      <button type="submit" class="btn gold">Completar registro</button>
     </form>
   </div>
 </div>
@@ -394,31 +375,19 @@ function seedData(){
 function nextDay(n){ const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
 
 let DATA = seedData(); // datos temporales mientras conecta con la base de datos compartida
-let dataReady = false;
 let firebaseOk = false;
 let db = null, docRef = null, storage = null;
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA6JvhkvBtoB9brgKLrOhBOBagqohDVcVs",
-  authDomain: "hay-vida-en-jesus-aa8d1.firebaseapp.com",
-  projectId: "hay-vida-en-jesus-aa8d1",
-  storageBucket: "hay-vida-en-jesus-aa8d1.firebasestorage.app",
-  messagingSenderId: "182211178386",
-  appId: "1:182211178386:web:95bb75bfebe5a052f7db4b"
+  apiKey: "AIzaSyAEycqEbCAOQ2mnjYRYycToAkP2PvSFibc",
+  authDomain: "hay-vida-en-jesus-99c22.firebaseapp.com",
+  projectId: "hay-vida-en-jesus-99c22",
+  storageBucket: "hay-vida-en-jesus-99c22.firebasestorage.app",
+  messagingSenderId: "915404790882",
+  appId: "1:915404790882:web:f2229b89f8bbb2b00fc53b"
 };
 
 function initFirebase(){
-  // Salvavidas: si en 10 segundos Firebase no respondió por cualquier motivo,
-  // seguimos con los datos de este dispositivo para que la app NUNCA se quede trabada.
-  const safetyTimer = setTimeout(()=>{
-    if(!dataReady){
-      console.warn("Firebase tardó demasiado — entrando en modo local");
-      window.__lastFirebaseError = "tardó demasiado en responder (revisa tu internet o las Reglas de Firestore)";
-      DATA = loadLocalFallback();
-      firebaseOk = false;
-      onDataReady();
-    }
-  }, 10000);
   try{
     if(typeof firebase === "undefined"){ throw new Error("El SDK de Firebase no cargó (revisa tu conexión a internet)"); }
     firebase.initializeApp(firebaseConfig);
@@ -426,37 +395,31 @@ function initFirebase(){
     storage = firebase.storage();
     try{ db.enablePersistence({synchronizeTabs:true}).catch(()=>{}); }catch(e){}
 
-    let listenerStarted = false;
-    // Esperamos a que Firebase confirme que YA hay una sesión (aunque sea anónima)
-    // antes de conectar Firestore — así evitamos el error "permission-denied" que
-    // ocurre si se intenta leer/escribir un instante antes de que la sesión esté lista.
+    // Ya no usamos sesión anónima: solo se conecta Firestore cuando hay una
+    // sesión real de Google (evita el "permission-denied" y hace el acceso más seguro).
     firebase.auth().onAuthStateChanged((user)=>{
-      if(user && !listenerStarted){
-        listenerStarted = true;
-        startFirestoreListener(safetyTimer);
-      }
-    });
-    firebase.auth().signInAnonymously().catch(err=>{
-      console.error("auth anónima falló:", err);
-      window.__lastFirebaseError = "Authentication: " + (err && err.code ? err.code : err.message || err);
-      if(!listenerStarted){
-        listenerStarted = true;
-        clearTimeout(safetyTimer);
-        DATA = loadLocalFallback();
+      if(user){
+        if(!docRef){ startFirestoreListener(); }
+      } else {
         firebaseOk = false;
-        onDataReady();
+        showGoogleLoginReady();
       }
     });
   }catch(e){
     console.error("Firebase no se pudo iniciar:", e);
     window.__lastFirebaseError = e && e.message ? e.message : String(e);
     DATA = loadLocalFallback();
-    firebaseOk = false;
-    clearTimeout(safetyTimer);
-    onDataReady();
+    showGoogleLoginReady();
   }
 }
-function startFirestoreListener(safetyTimer){
+function showGoogleLoginReady(){
+  const btn = document.getElementById("googleLoginBtn");
+  if(btn) btn.disabled = false;
+  const loadingEl = document.getElementById("authLoading");
+  if(loadingEl) loadingEl.style.display = "none";
+}
+let gotFirstSnapshot = false;
+function startFirestoreListener(){
   docRef = db.collection("church").doc("main");
   docRef.onSnapshot((snap)=>{
     try{
@@ -473,15 +436,32 @@ function startFirestoreListener(safetyTimer){
       DATA = loadLocalFallback();
       firebaseOk = false;
     }
-    clearTimeout(safetyTimer);
-    onDataReady();
+    updateSyncBadge();
+    if(!gotFirstSnapshot){
+      gotFirstSnapshot = true;
+      const loadingEl = document.getElementById("authLoading");
+      if(loadingEl) loadingEl.style.display = "none";
+      const user = firebase.auth().currentUser;
+      if(user){ resolveSessionFromGoogleUser(user); }
+    } else if(SESSION && document.getElementById("app").classList.contains("show")){
+      // Llegaron datos nuevos de otro dispositivo mientras la app está abierta: refrescamos la vista.
+      render();
+      buildTabs();
+    }
   }, (err)=>{
     console.error("Firestore onSnapshot error:", err);
     window.__lastFirebaseError = "Firestore: " + (err && err.code ? err.code : (err && err.message ? err.message : err));
     DATA = loadLocalFallback();
     firebaseOk = false;
-    clearTimeout(safetyTimer);
-    onDataReady();
+    updateSyncBadge();
+    if(!gotFirstSnapshot){
+      gotFirstSnapshot = true;
+      const errEl = document.getElementById("googleErr");
+      if(errEl) errEl.textContent = "No se pudo cargar la base compartida (" + window.__lastFirebaseError + "). Puedes intentar de nuevo.";
+      const loadingEl = document.getElementById("authLoading");
+      if(loadingEl) loadingEl.style.display = "none";
+      showGoogleLoginReady();
+    }
   });
 }
 function loadLocalFallback(){
@@ -490,29 +470,6 @@ function loadLocalFallback(){
     if(raw) return migrate(JSON.parse(raw));
   }catch(e){}
   return seedData();
-}
-function onDataReady(){
-  const wasReady = dataReady;
-  dataReady = true;
-  updateSyncBadge();
-  if(!wasReady){
-    SESSION = loadSession();
-    if(SESSION){ enterApp(); }
-    const loadingEl = document.getElementById("authLoading");
-    if(loadingEl){
-      if(firebaseOk){
-        loadingEl.style.display = "none";
-      } else {
-        loadingEl.textContent = "⚠️ Sin conexión con la base compartida" + (window.__lastFirebaseError ? (" — detalle: " + window.__lastFirebaseError) : "") + ". Puedes seguir usando la app en este dispositivo.";
-        loadingEl.style.color = "var(--wine)";
-      }
-    }
-    document.querySelectorAll("#loginForm button, #signupForm button").forEach(b=> b.disabled = false);
-  } else if(SESSION && document.getElementById("app").classList.contains("show")){
-    // Llegaron datos nuevos de otro dispositivo mientras la app está abierta: refrescamos la vista.
-    render();
-    buildTabs();
-  }
 }
 function updateSyncBadge(){
   const el = document.getElementById('connBanner');
@@ -634,21 +591,12 @@ const ROLE_LABELS = { pastor:"Pastor", diacono:"Diácono", tesoreria:"Tesorería
 const ROLE_ICON = { pastor:"⛪", diacono:"🛡️", tesoreria:"💰", miembro:"👤" };
 
 /* ============================================================
-   LOGIN LOGIC
+   LOGIN LOGIC (solo Google, por ahora)
    ============================================================ */
 let selectedRole = "miembro";
+let pendingGoogleUser = null; // {name, email, photoURL} mientras completa su registro
 
-// --- Tabs: Iniciar sesión / Crear cuenta ---
-document.getElementById("modeLoginBtn").addEventListener("click", ()=> switchAuthMode("login"));
-document.getElementById("modeSignupBtn").addEventListener("click", ()=> switchAuthMode("signup"));
-function switchAuthMode(mode){
-  document.getElementById("modeLoginBtn").classList.toggle("active", mode==="login");
-  document.getElementById("modeSignupBtn").classList.toggle("active", mode==="signup");
-  document.getElementById("loginForm").classList.toggle("active", mode==="login");
-  document.getElementById("signupForm").classList.toggle("active", mode==="signup");
-}
-
-// --- Role picker (signup only) ---
+// --- Role picker (solo se usa al completar el registro la primera vez) ---
 document.querySelectorAll("#roleGrid .role-btn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     document.querySelectorAll("#roleGrid .role-btn").forEach(b=>b.classList.remove("active"));
@@ -658,56 +606,66 @@ document.querySelectorAll("#roleGrid .role-btn").forEach(btn=>{
   });
 });
 
-// --- Simple hash so no plain-text passwords sit in storage (demo-grade, not real crypto) ---
-function simpleHash(str){
-  let h = 0;
-  for(let i=0;i<str.length;i++){ h = (h<<5) - h + str.charCodeAt(i); h |= 0; }
-  return String(h);
+// --- Google Sign-In ---
+document.getElementById("googleLoginBtn").addEventListener("click", ()=>{
+  const errEl = document.getElementById("googleErr");
+  errEl.textContent = "";
+  if(typeof firebase === "undefined" || !firebase.auth){ errEl.textContent = "Firebase no cargó todavía, espera unos segundos e intenta de nuevo."; return; }
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider).catch(err=>{
+    console.error("Google sign-in falló:", err);
+    if(err && err.code === "auth/popup-blocked"){
+      errEl.textContent = "Tu navegador bloqueó la ventana de Google. Permite ventanas emergentes para este sitio e intenta de nuevo.";
+    } else if(err && err.code === "auth/unauthorized-domain"){
+      errEl.textContent = "Este sitio todavía no está autorizado en Firebase (Authentication → Settings → Authorized domains).";
+    } else {
+      errEl.textContent = "No se pudo iniciar sesión con Google: " + (err && err.code ? err.code : err);
+    }
+  });
+});
+
+// Se llama una vez que ya tenemos los datos de Firestore Y un usuario real de Google.
+function resolveSessionFromGoogleUser(user){
+  const existing = DATA.users.find(u=> (u.email||"").toLowerCase() === (user.email||"").toLowerCase());
+  if(existing){
+    if(user.photoURL && existing.photoDataUrl !== user.photoURL){
+      existing.photoDataUrl = user.photoURL;
+      syncMemberFromProfile(existing.name, { photoDataUrl: user.photoURL });
+      save();
+    }
+    SESSION = { role: existing.role, name: existing.name, email: existing.email, userId: existing.id };
+    saveSession(SESSION);
+    enterApp();
+  } else {
+    pendingGoogleUser = { name: user.displayName || user.email, email: user.email, photoURL: user.photoURL || null };
+    document.getElementById("googleLoginPanel").style.display = "none";
+    document.getElementById("completeProfileForm").style.display = "block";
+    document.getElementById("cpName").value = pendingGoogleUser.name;
+  }
 }
 
-// --- Signup ---
-document.getElementById("signupForm").addEventListener("submit", (e)=>{
+// --- Completar registro (primera vez con esa cuenta de Google) ---
+document.getElementById("completeProfileForm").addEventListener("submit", (e)=>{
   e.preventDefault();
-  const name = document.getElementById("suName").value.trim();
-  const email = document.getElementById("suEmail").value.trim().toLowerCase();
-  const password = document.getElementById("suPassword").value;
-  const birthDate = document.getElementById("suBirth").value;
-  const code = document.getElementById("suCode").value.trim();
   const errEl = document.getElementById("signupErr");
   errEl.textContent = "";
-
-  if(!name || !email || !password || !birthDate){ errEl.textContent = "Completa todos los campos, incluida tu fecha de nacimiento."; return; }
-  if(password.length < 4){ errEl.textContent = "La contraseña debe tener al menos 4 caracteres."; return; }
-  if(DATA.users.some(u=>u.email===email)){ errEl.textContent = "Ya existe una cuenta con ese correo. Inicia sesión."; return; }
+  if(!pendingGoogleUser){ errEl.textContent = "Algo salió mal, vuelve a iniciar sesión con Google."; return; }
+  const name = document.getElementById("cpName").value.trim();
+  const birthDate = document.getElementById("cpBirth").value;
+  const code = document.getElementById("cpCode").value.trim();
+  if(!name || !birthDate){ errEl.textContent = "Completa tu nombre y fecha de nacimiento."; return; }
   if(selectedRole !== "miembro" && code !== DATA.config.pins[selectedRole]){
     errEl.textContent = "Código de invitación incorrecto para ese rol.";
     return;
   }
-
-  const newUser = { id: uid(), name, email, passHash: simpleHash(password), role: selectedRole, birthDate, photoDataUrl:null };
+  const newUser = { id: uid(), name, email: pendingGoogleUser.email, passHash: null, role: selectedRole, birthDate, photoDataUrl: pendingGoogleUser.photoURL };
   DATA.users.push(newUser);
-  syncMemberFromProfile(name, { birthDate, role: ROLE_LABELS[selectedRole] });
+  syncMemberFromProfile(name, { birthDate, role: ROLE_LABELS[selectedRole], photoDataUrl: pendingGoogleUser.photoURL });
   save();
   SESSION = { role: newUser.role, name: newUser.name, email: newUser.email, userId: newUser.id };
   saveSession(SESSION);
-  toast("Cuenta creada. ¡Bienvenido/a!");
-  enterApp();
-});
-
-// --- Login ---
-document.getElementById("loginForm").addEventListener("submit", (e)=>{
-  e.preventDefault();
-  const email = document.getElementById("liEmail").value.trim().toLowerCase();
-  const password = document.getElementById("liPassword").value;
-  const errEl = document.getElementById("loginErr");
-  errEl.textContent = "";
-  const user = DATA.users.find(u=>u.email===email);
-  if(!user || user.passHash !== simpleHash(password)){
-    errEl.textContent = "Correo o contraseña incorrectos.";
-    return;
-  }
-  SESSION = { role: user.role, name: user.name, email: user.email, userId: user.id };
-  saveSession(SESSION);
+  pendingGoogleUser = null;
+  toast("Registro completado. ¡Bienvenido/a!");
   enterApp();
 });
 
@@ -722,11 +680,12 @@ function enterApp(){
 }
 document.getElementById("logoutBtn").addEventListener("click", ()=>{
   clearSession(); SESSION = null;
+  if(typeof firebase !== "undefined" && firebase.auth){ firebase.auth().signOut().catch(()=>{}); }
   document.getElementById("app").classList.remove("show");
   document.getElementById("login").style.display = "flex";
-  document.getElementById("loginForm").reset();
-  document.getElementById("signupForm").reset();
-  switchAuthMode("login");
+  document.getElementById("completeProfileForm").style.display = "none";
+  document.getElementById("completeProfileForm").reset();
+  document.getElementById("googleLoginPanel").style.display = "block";
 });
 
 /* ============================================================
