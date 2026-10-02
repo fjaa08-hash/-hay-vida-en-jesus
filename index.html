@@ -2,7 +2,14 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#152C42">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hay Vida en Jesús">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon-192.png">
 <title>Hay Vida en Jesús — App de la Iglesia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -301,6 +308,7 @@
       </div>
     </div>
     <div class="who">
+      <button class="bell-btn" id="installBtn" title="Instalar app" style="display:none;">📲</button>
       <button class="bell-btn" id="bellBtn" title="Recordatorios de eventos">🔔<span class="bell-dot" id="bellDot" style="display:none;"></span></button>
       <span class="badge" id="roleBadge"></span>
       <button class="logout-btn" id="logoutBtn">Salir</button>
@@ -331,7 +339,8 @@ function seedData(){
   return {
     config:{
       churchName:"Iglesia Bautista Misionera Hay Vida en Jesús",
-      pins:{ pastor:"1234", diacono:"2345", tesoreria:"3456" }
+      pins:{ pastor:"1234", diacono:"2345", tesoreria:"3456" },
+      bsRate: 0, bsRateUpdated: null, bsRateSource: null
     },
     users:[],
     members:[],
@@ -509,11 +518,19 @@ function updateSyncBadge(){
 function migrate(d){
   d.config = d.config || { churchName:"Iglesia Bautista Misionera Hay Vida en Jesús", pins:{pastor:"1234", diacono:"2345", tesoreria:"3456"} };
   d.config.pins = d.config.pins || {pastor:"1234", diacono:"2345", tesoreria:"3456"};
+  if(d.config.bsRate===undefined) d.config.bsRate = 0;
+  if(d.config.bsRateUpdated===undefined) d.config.bsRateUpdated = null;
+  if(d.config.bsRateSource===undefined) d.config.bsRateSource = null;
   d.users = Array.isArray(d.users) ? d.users : [];
   d.members = d.members || [];
   d.members.forEach(m=>{ if(m.birthDate===undefined) m.birthDate = null; if(m.photoDataUrl===undefined) m.photoDataUrl = null; });
   d.users.forEach(u=>{ if(u.birthDate===undefined) u.birthDate = null; if(u.photoDataUrl===undefined) u.photoDataUrl = null; });
   d.attendance = d.attendance || {};
+  Object.keys(d.attendance).forEach(date=>{
+    const v = d.attendance[date];
+    if(Array.isArray(v)){ d.attendance[date] = { activity: "Servicio Dominical", present: v }; }
+    else if(v && !v.activity){ v.activity = "Servicio Dominical"; }
+  });
   d.events = d.events || [];
   d.prayers = d.prayers || [];
   d.verses = d.verses || [];
@@ -835,6 +852,13 @@ function effectiveStreak(memberName){
 function initials(name){
   return (name||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
 }
+function fmtUsdBs(amount){
+  const usd = "$"+Number(amount).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
+  const rate = Number(DATA.config.bsRate||0);
+  if(!rate) return usd;
+  const bs = (Number(amount)*rate).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
+  return usd + ` <span style="opacity:.65; font-size:.85em;">(Bs ${bs})</span>`;
+}
 // Mantiene sincronizados los datos de perfil (cumpleaños, foto, teléfono) entre
 // la cuenta de usuario y el directorio de miembros, que es la fuente única
 // para la asistencia y los reportes (incluye a quienes no tienen la app).
@@ -920,7 +944,7 @@ function viewInicio(){
   const verse = [...DATA.verses].sort((a,b)=> b.date.localeCompare(a.date))[0];
   const upcoming = DATA.events.filter(e=> e.date >= todayISO()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,2);
   const prayerCount = DATA.prayers.filter(p=>!p.answered).length;
-  const attToday = (DATA.attendance[todayISO()]||[]).length;
+  const attToday = ((DATA.attendance[todayISO()]||{}).present||[]).length;
   const bdays = todaysBirthdays();
   const myBday = bdays.find(m=> m.name.toLowerCase()===SESSION.name.toLowerCase());
   const otherBdays = bdays.filter(m=> m.name.toLowerCase()!==SESSION.name.toLowerCase());
@@ -982,11 +1006,24 @@ function afterInicio(){}
 
 /* ---------- ASISTENCIA ---------- */
 let attDate = todayISO();
+let asistenciaTab = "marcar";
+function setAsistenciaTab(t){ asistenciaTab = t; render(); }
 function viewAsistencia(){
   if(!can("editAttendance")){
     return `<div class="finance-guard"><div style="font-size:32px;">🔒</div><p>Esta sección es solo para el Pastor y los Diáconos.</p></div>`;
   }
-  const present = new Set(DATA.attendance[attDate]||[]);
+  return `
+    <div class="section-head"><h2>Asistencia</h2><p>Lista única con todos los miembros, estadísticas y reportes.</p></div>
+    <div class="tabline">
+      <button class="${asistenciaTab==='marcar'?'active':''}" onclick="setAsistenciaTab('marcar')">✅ Marcar asistencia</button>
+      <button class="${asistenciaTab==='reportes'?'active':''}" onclick="setAsistenciaTab('reportes')">📊 Estadísticas y reportes</button>
+    </div>
+    ${asistenciaTab==='marcar' ? viewAsistenciaMarcar() : viewAsistenciaReportes()}
+  `;
+}
+function viewAsistenciaMarcar(){
+  const rec = DATA.attendance[attDate] || {activity:"Servicio Dominical", present:[]};
+  const present = new Set(rec.present||[]);
   const active = DATA.members.filter(m=>m.active);
   const absent = active.filter(m=> !present.has(m.id));
   const accountNames = new Set(DATA.users.map(u=>u.name.toLowerCase()));
@@ -994,10 +1031,18 @@ function viewAsistencia(){
     ? '<span class="chip good" style="margin-left:6px;">📲 Con app</span>'
     : '<span class="chip gold" style="margin-left:6px;">📋 Sin app</span>';
   return `
-    <div class="section-head"><h2>Asistencia</h2><p>Lista única con todos los miembros: los que tienen la app y los que no.</p></div>
     <div class="card">
-      <div class="field"><label>Fecha del servicio</label>
-        <input type="date" id="attDateInput" value="${attDate}">
+      <div class="row">
+        <div class="field"><label>Fecha del servicio</label>
+          <input type="date" id="attDateInput" value="${attDate}">
+        </div>
+        <div class="field"><label>Actividad</label>
+          <input list="activityList" id="attActivityInput" value="${esc(rec.activity||"Servicio Dominical")}" placeholder="Ej. Servicio Dominical">
+          <datalist id="activityList">
+            <option value="Servicio Dominical"><option value="Estudio Bíblico"><option value="Ayuno y Oración">
+            <option value="Reunión de jóvenes"><option value="Vigilia"><option value="Reunión de damas">
+          </datalist>
+        </div>
       </div>
       ${active.map(m=>`
         <div class="check-row">
@@ -1025,6 +1070,95 @@ function viewAsistencia(){
     </div>
   `;
 }
+
+/* ---------- ESTADÍSTICAS Y REPORTES DE ASISTENCIA ---------- */
+let attReportPeriod = "mensual";
+let attReportMember = "";
+function viewAsistenciaReportes(){
+  const dates = Object.keys(DATA.attendance).sort();
+  const range = periodRange(attReportPeriod);
+  const inRange = dates.filter(d=> d>=range.from && d<=range.to);
+
+  // Promedio general y por actividad
+  const byActivity = {};
+  inRange.forEach(d=>{
+    const rec = DATA.attendance[d];
+    const act = rec.activity || "General";
+    byActivity[act] = byActivity[act] || {sum:0, count:0};
+    byActivity[act].sum += (rec.present||[]).length;
+    byActivity[act].count += 1;
+  });
+  const totalPresences = inRange.reduce((s,d)=> s + (DATA.attendance[d].present||[]).length, 0);
+  const avgGeneral = inRange.length ? (totalPresences/inRange.length) : 0;
+
+  const active = DATA.members.filter(m=>m.active);
+  const memberOpts = active.map(m=>`<option value="${esc(m.name)}" ${attReportMember===m.name?"selected":""}>${esc(m.name)}</option>`).join("");
+  let individualHtml = "";
+  if(attReportMember){
+    const m = active.find(x=>x.name===attReportMember);
+    if(m){
+      const attended = inRange.filter(d=> (DATA.attendance[d].present||[]).includes(m.id));
+      const pct = inRange.length ? Math.round((attended.length/inRange.length)*100) : 0;
+      individualHtml = `
+        <div class="stat-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="stat"><div class="n">${attended.length}/${inRange.length}</div><div class="l">Servicios asistidos</div></div>
+          <div class="stat"><div class="n">${pct}%</div><div class="l">Porcentaje de asistencia</div></div>
+        </div>
+      `;
+    }
+  }
+
+  return `
+    <div class="card">
+      <div class="field"><label>Periodo</label>
+        <select id="attPeriodSelect" onchange="setAttReportPeriod(this.value)">
+          <option value="semanal" ${attReportPeriod==='semanal'?'selected':''}>Semanal (últimos 7 días)</option>
+          <option value="mensual" ${attReportPeriod==='mensual'?'selected':''}>Mensual (mes actual)</option>
+          <option value="trimestral" ${attReportPeriod==='trimestral'?'selected':''}>Trimestral (últimos 3 meses)</option>
+          <option value="anual" ${attReportPeriod==='anual'?'selected':''}>Anual (año actual)</option>
+        </select>
+      </div>
+    </div>
+    <div class="stat-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="stat"><div class="n">${inRange.length}</div><div class="l">Servicios registrados</div></div>
+      <div class="stat"><div class="n">${avgGeneral.toFixed(1)}</div><div class="l">Promedio general de asistencia</div></div>
+    </div>
+    <div class="card">
+      <h3>📊 Promedio por actividad</h3>
+      ${Object.entries(byActivity).map(([act,v])=>`
+        <div class="list-item"><div class="main"><div class="ttl">${esc(act)}</div><div class="meta">${v.count} servicio(s) registrados</div></div>
+        <div class="amt in">${(v.sum/v.count).toFixed(1)} prom.</div></div>
+      `).join("") || `<div class="empty"><p>Sin datos en este periodo.</p></div>`}
+      <button class="btn ghost small" style="margin-top:10px;" onclick="shareAttendanceReportWA('${attReportPeriod}')">📲 Compartir resumen por WhatsApp</button>
+    </div>
+    <div class="card">
+      <h3>👤 Reporte individual</h3>
+      <div class="field"><label>Hermano(a)</label>
+        <select id="attMemberSelect" onchange="setAttReportMember(this.value)">
+          <option value="">— Selecciona —</option>${memberOpts}
+        </select>
+      </div>
+      ${individualHtml}
+    </div>
+  `;
+}
+function setAttReportPeriod(v){ attReportPeriod = v; render(); }
+function setAttReportMember(v){ attReportMember = v; render(); }
+function shareAttendanceReportWA(period){
+  const range = periodRange(period);
+  const dates = Object.keys(DATA.attendance).filter(d=> d>=range.from && d<=range.to);
+  const byActivity = {};
+  dates.forEach(d=>{
+    const rec = DATA.attendance[d];
+    const act = rec.activity || "General";
+    byActivity[act] = byActivity[act] || {sum:0, count:0};
+    byActivity[act].sum += (rec.present||[]).length;
+    byActivity[act].count += 1;
+  });
+  const text = `📊 *Reporte de asistencia — ${DATA.config.churchName}*\nDel ${fmtDateShort(range.from)} al ${fmtDateShort(range.to)}\n\n`+
+    Object.entries(byActivity).map(([act,v])=> `• ${act}: promedio ${(v.sum/v.count).toFixed(1)} (${v.count} servicios)`).join("\n");
+  window.open("https://wa.me/?text="+encodeURIComponent(text), "_blank");
+}
 const ABSENT_TEMPLATE = "Hola {nombre}, te extrañamos en el servicio de hoy 💛 ¿Cómo estás? Cualquier cosa que necesites, aquí estamos para ti.";
 function whatsappAbsent(name, phone){
   const digits = (phone||"").replace(/[^0-9]/g,"");
@@ -1039,7 +1173,7 @@ function messageAbsent(name){
   render();
 }
 function messageAllAbsent(){
-  const present = new Set(DATA.attendance[attDate]||[]);
+  const present = new Set((DATA.attendance[attDate]||{}).present||[]);
   const absent = DATA.members.filter(m=>m.active && !present.has(m.id));
   if(!absent.length){ toast("No hay ausentes que notificar"); return; }
   absent.forEach(m=>{
@@ -1053,11 +1187,22 @@ function afterAsistencia(){
   const dateInput = document.getElementById("attDateInput");
   if(!dateInput) return;
   dateInput.addEventListener("change", ()=>{ attDate = dateInput.value; render(); });
+  const activityInput = document.getElementById("attActivityInput");
+  if(activityInput){
+    activityInput.addEventListener("change", ()=>{
+      const rec = DATA.attendance[attDate] || {activity:"Servicio Dominical", present:[]};
+      rec.activity = activityInput.value.trim() || "Servicio Dominical";
+      DATA.attendance[attDate] = rec;
+      save();
+    });
+  }
   document.querySelectorAll('.check-row input[type=checkbox]').forEach(cb=>{
     cb.addEventListener("change", ()=>{
-      const set = new Set(DATA.attendance[attDate]||[]);
+      const rec = DATA.attendance[attDate] || {activity: (activityInput?activityInput.value.trim():"") || "Servicio Dominical", present:[]};
+      const set = new Set(rec.present||[]);
       cb.checked ? set.add(cb.dataset.id) : set.delete(cb.dataset.id);
-      DATA.attendance[attDate] = [...set];
+      rec.present = [...set];
+      DATA.attendance[attDate] = rec;
       save();
       render();
     });
@@ -1372,7 +1517,10 @@ function viewMensajes(){
               <div class="ttl">${esc(m.subject)} <span class="chip wine" style="margin-left:4px;">${m.to==="todos"?"Para todos":"Para "+esc(m.to)}</span></div>
               <div class="meta">${fmtDate(m.date)} · 👁️ ${readCount}/${recipients.length} leyeron</div>
             </div>
-            <button class="btn ghost small" onclick="openMsgReadStatus('${m.id}')">Ver quién</button>
+            <div style="display:flex; gap:6px;">
+              <button class="btn ghost small" onclick="openMsgReadStatus('${m.id}')">Ver quién</button>
+              ${can("settings") ? `<button class="btn ghost small" onclick="deleteMessage('${m.id}')">🗑️</button>` : ""}
+            </div>
           </div>`;
         }).join("")}
       </div>
@@ -1387,9 +1535,17 @@ function viewMensajes(){
             <div class="meta" style="color:var(--ink-soft); font-size:12px;">De ${esc(m.from)} · ${fmtDate(m.date)}</div>
           </div>
         </div>
+        ${can("settings") ? `<button class="btn ghost small" style="margin-top:10px;" onclick="deleteMessage('${m.id}')">🗑️ Eliminar</button>` : ""}
       </div>
     `).join("") || `<div class="empty"><div class="ic">✉️</div><p>No tienes mensajes por ahora.</p></div>`}
   `;
+}
+function deleteMessage(id){
+  if(!can("settings")){ toast("Solo el Pastor puede borrar mensajes"); return; }
+  const ok = confirm("¿Eliminar este mensaje para todos? No se puede deshacer.");
+  if(!ok) return;
+  DATA.messages = DATA.messages.filter(m=>m.id!==id);
+  save(); toast("Mensaje eliminado"); render();
 }
 function openMsgReadStatus(id){
   const m = DATA.messages.find(x=>x.id===id); if(!m) return;
@@ -1473,6 +1629,7 @@ function viewMiembros(){
           </div>
           <div style="display:flex; flex-direction:column; gap:5px;">
             <button class="btn ghost small" onclick="openEditMember('${m.id}')">✏️ Editar</button>
+            ${can("settings") ? `<button class="btn ghost small" onclick="openAssignRole('${m.id}')">🛡️ Asignar función</button>` : ""}
             <button class="btn ghost small" onclick="toggleMember('${m.id}')">${m.active? "Desactivar":"Activar"}</button>
             ${can("deleteMembers") ? `<button class="btn danger small" onclick="deleteMemberPermanently('${m.id}')">🗑️ Eliminar</button>` : ""}
           </div>
@@ -1518,6 +1675,42 @@ function saveMember(){
 }
 function toggleMember(id){
   const m = DATA.members.find(x=>x.id===id); if(m){ m.active = !m.active; save(); render(); }
+}
+function openAssignRole(memberId){
+  const m = DATA.members.find(x=>x.id===memberId); if(!m) return;
+  const hasAccount = DATA.users.some(u=> u.name.toLowerCase()===m.name.toLowerCase());
+  openModal(`
+    <h3>Asignar función — ${esc(m.name)}</h3>
+    <p style="font-size:12px; color:var(--ink-soft); margin-top:-8px;">
+      ${hasAccount ? "Este cambio aplica de inmediato: la próxima vez que inicie sesión, ya tendrá los permisos del nuevo rol." : "Este hermano todavía no tiene cuenta en la app — el cambio se refleja en el directorio y se activará automáticamente cuando cree su cuenta de Google con este mismo nombre."}
+    </p>
+    <div class="role-grid" id="assignRoleGrid">
+      <button type="button" class="role-btn ${(!m.role||m.role==='Miembro')?'active':''}" data-role="Miembro"><div class="rt">👤 Miembro</div></button>
+      <button type="button" class="role-btn ${m.role==='Diácono'?'active':''}" data-role="Diácono"><div class="rt">🛡️ Diácono</div></button>
+      <button type="button" class="role-btn ${m.role==='Tesorería'?'active':''}" data-role="Tesorería"><div class="rt">💰 Tesorería</div></button>
+      <button type="button" class="role-btn ${m.role==='Pastor'?'active':''}" data-role="Pastor"><div class="rt">⛪ Pastor</div></button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn gold" onclick="saveAssignRole('${m.id}')">Guardar función</button>
+    </div>
+  `);
+  document.querySelectorAll("#assignRoleGrid .role-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll("#assignRoleGrid .role-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+}
+function saveAssignRole(memberId){
+  const btn = document.querySelector("#assignRoleGrid .role-btn.active");
+  const newRoleLabel = btn ? btn.dataset.role : "Miembro";
+  const roleKeyMap = {"Miembro":"miembro","Diácono":"diacono","Tesorería":"tesoreria","Pastor":"pastor"};
+  const m = DATA.members.find(x=>x.id===memberId); if(!m) return;
+  m.role = newRoleLabel;
+  const u = DATA.users.find(x=> x.name.toLowerCase()===m.name.toLowerCase());
+  if(u){ u.role = roleKeyMap[newRoleLabel] || "miembro"; }
+  save(); closeModal(); toast("Función actualizada: "+newRoleLabel); render();
 }
 function deleteMemberPermanently(id){
   const m = DATA.members.find(x=>x.id===id); if(!m) return;
@@ -1959,13 +2152,45 @@ const INDUCTIVE_QUESTIONS = [
   {id:"q9", type:"app", text:"¿Qué cambio concreto puedo hacer esta semana a partir de esto?"},
   {id:"q10", type:"app", text:"¿Por quién puedo orar o a quién puedo animar con lo que aprendí hoy?"}
 ];
+const BIBLE_STUDY_TOPICS = [
+  {title:"La fe", ref:"Hebreos 11:1-6"},
+  {title:"La gracia de Dios", ref:"Efesios 2:1-10"},
+  {title:"El perdón", ref:"Mateo 18:21-35"},
+  {title:"La iglesia como cuerpo de Cristo", ref:"1 Corintios 12:12-27"},
+  {title:"El fruto del Espíritu", ref:"Gálatas 5:16-25"},
+  {title:"El poder de la oración", ref:"Mateo 6:5-15"},
+  {title:"El amor de Dios", ref:"1 Juan 4:7-21"},
+  {title:"La salvación por gracia", ref:"Romanos 3:21-26"},
+  {title:"El liderazgo según Jesús", ref:"Marcos 10:35-45"},
+  {title:"La familia cristiana", ref:"Efesios 5:22-6:4"},
+  {title:"El matrimonio bíblico", ref:"1 Corintios 13:4-8"},
+  {title:"Los dones espirituales", ref:"Romanos 12:3-8"},
+  {title:"La mayordomía y el dar", ref:"2 Corintios 9:6-15"},
+  {title:"El servicio humilde", ref:"Juan 13:1-17"},
+  {title:"La humildad", ref:"Filipenses 2:1-11"},
+  {title:"La paciencia en la prueba", ref:"Santiago 1:2-12"},
+  {title:"La esperanza cristiana", ref:"Romanos 8:18-25"},
+  {title:"El bautismo", ref:"Romanos 6:1-11"},
+  {title:"La Santa Cena", ref:"1 Corintios 11:23-29"},
+  {title:"La Segunda Venida de Cristo", ref:"1 Tesalonicenses 4:13-18"}
+];
 function viewEstudioInductivo(){
   const mine = DATA.personalStudies.filter(s=> s.memberName===SESSION.name).sort((a,b)=> b.date.localeCompare(a.date));
   return `
     <div class="card">
       <h3>🔍 Estudio inductivo de un versículo</h3>
       <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 12px;">Elige tú el versículo que quieras estudiar. Responde 6 preguntas de observación/interpretación y 4 de aplicación.</p>
-      <button class="btn gold" onclick="openInductiveForm()">+ Nuevo estudio inductivo</button>
+      <button class="btn gold" onclick="openInductiveForm()">+ Nuevo estudio libre</button>
+    </div>
+    <div class="card">
+      <h3>📚 Catálogo de 20 temas bíblicos</h3>
+      <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 12px;">Elige un tema y te dejamos lista la referencia — tú escribes el pasaje y respondes las preguntas.</p>
+      ${BIBLE_STUDY_TOPICS.map((t,i)=>`
+        <div class="list-item">
+          <div class="main"><div class="ttl" style="font-size:13.5px;">${esc(t.title)}</div><div class="meta">${esc(t.ref)}</div></div>
+          <button class="btn ghost small" onclick="openInductiveForm(${i})">Estudiar</button>
+        </div>
+      `).join("")}
     </div>
     ${mine.map(s=>`
       <div class="card song-card" onclick="openInductiveDetail('${s.id}')">
@@ -1976,10 +2201,11 @@ function viewEstudioInductivo(){
     `).join("") || `<div class="empty"><div class="ic">🔍</div><p>Aún no has hecho ningún estudio inductivo.</p></div>`}
   `;
 }
-function openInductiveForm(){
+function openInductiveForm(topicIndex){
+  const topic = (topicIndex!==undefined) ? BIBLE_STUDY_TOPICS[topicIndex] : null;
   openModal(`
-    <h3>Nuevo estudio inductivo</h3>
-    <div class="field"><label>Referencia</label><input id="isRef" placeholder="Ej. Filipenses 4:6-7"></div>
+    <h3>${topic ? "📚 "+esc(topic.title) : "Nuevo estudio inductivo"}</h3>
+    <div class="field"><label>Referencia</label><input id="isRef" value="${topic?esc(topic.ref):""}" placeholder="Ej. Filipenses 4:6-7"></div>
     <div class="field"><label>Escribe el versículo (con tus palabras o cópialo de tu Biblia)</label><textarea id="isVerse" rows="2"></textarea></div>
     <h3 style="font-size:13px; margin-top:16px;">🔎 Observación e interpretación</h3>
     ${INDUCTIVE_QUESTIONS.filter(q=>q.type==="obs").map(q=>`
@@ -2451,17 +2677,28 @@ function viewFinanzas(){
   const thisMonth = new Date().toISOString().slice(0,7);
   const monthEntradas = DATA.finances.filter(f=> f.date.slice(0,7)===thisMonth && f.direction!=="salida").reduce((s,f)=> s+Number(f.amount||0), 0);
   const monthSalidas = DATA.finances.filter(f=> f.date.slice(0,7)===thisMonth && f.direction==="salida").reduce((s,f)=> s+Number(f.amount||0), 0);
+  const rate = Number(DATA.config.bsRate||0);
 
   return `
-    <div class="section-head"><h2>Diezmos y ofrendas</h2><p>Entradas, salidas y balance de la iglesia. Solo visible para Pastor y Tesorería.</p></div>
+    <div class="section-head"><h2>Diezmos y ofrendas</h2><p>Entradas, salidas y balance de la iglesia, en USD con equivalente en Bs. Solo visible para Pastor y Tesorería.</p></div>
+    <div class="card">
+      <h3>💱 Tasa del día (Bs por $1)</h3>
+      <div class="row">
+        <input type="number" id="bsRateInput" value="${rate||""}" placeholder="Ej. 45.30" min="0" step="0.01">
+        <button class="btn ghost small" onclick="saveBsRate()">Guardar tasa</button>
+      </div>
+      <button class="btn ghost small" style="margin-top:8px;" onclick="fetchAutoRate()">🔄 Traer tasa del día automáticamente</button>
+      <p id="rateUpdatedNote" style="font-size:11px; color:var(--ink-soft); margin-top:6px;">${DATA.config.bsRateUpdated ? "Última actualización: "+fmtDate(DATA.config.bsRateUpdated)+(DATA.config.bsRateSource==="auto"?" (automática, BCV)":" (manual)") : ""}</p>
+      ${!rate ? `<p style="font-size:11.5px; color:var(--ink-soft); margin-top:8px;">Sin tasa cargada, los montos se muestran solo en USD. Actualízala cada día que cambie.</p>` : ""}
+    </div>
     <div class="stat-grid">
-      <div class="stat"><div class="n" style="color:var(--good);">$${entradas.toLocaleString()}</div><div class="l">Entradas totales</div></div>
-      <div class="stat"><div class="n" style="color:var(--bad);">$${salidas.toLocaleString()}</div><div class="l">Salidas totales</div></div>
-      <div class="stat"><div class="n">$${balance.toLocaleString()}</div><div class="l">Balance actual</div></div>
+      <div class="stat"><div class="n" style="color:var(--good); font-size:19px;">${fmtUsdBs(entradas)}</div><div class="l">Entradas totales</div></div>
+      <div class="stat"><div class="n" style="color:var(--bad); font-size:19px;">${fmtUsdBs(salidas)}</div><div class="l">Salidas totales</div></div>
+      <div class="stat"><div class="n" style="font-size:19px;">${fmtUsdBs(balance)}</div><div class="l">Balance actual</div></div>
     </div>
     <div class="stat-grid" style="grid-template-columns:1fr 1fr;">
-      <div class="stat"><div class="n" style="color:var(--good);">$${monthEntradas.toLocaleString()}</div><div class="l">Entradas este mes</div></div>
-      <div class="stat"><div class="n" style="color:var(--bad);">$${monthSalidas.toLocaleString()}</div><div class="l">Salidas este mes</div></div>
+      <div class="stat"><div class="n" style="color:var(--good); font-size:17px;">${fmtUsdBs(monthEntradas)}</div><div class="l">Entradas este mes</div></div>
+      <div class="stat"><div class="n" style="color:var(--bad); font-size:17px;">${fmtUsdBs(monthSalidas)}</div><div class="l">Salidas este mes</div></div>
     </div>
     <div class="row" style="margin-bottom:14px;">
       <button class="btn gold" onclick="openFinanceForm()">+ Registrar movimiento</button>
@@ -2479,13 +2716,37 @@ function viewFinanzas(){
             <div class="meta">${fmtDate(f.date)} ${f.note? "· "+esc(f.note):""}</div>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <div class="amt ${isOut?"":"in"}" style="${isOut?"color:var(--bad);":""}">${isOut?"-":"+"}$${Number(f.amount).toLocaleString()}</div>
+            <div class="amt ${isOut?"":"in"}" style="${isOut?"color:var(--bad);":""}">${isOut?"-":"+"}${fmtUsdBs(f.amount)}</div>
             ${can("settings") ? `<button class="btn ghost small" onclick="deleteFinanceEntry('${f.id}')">🗑️</button>` : ""}
           </div>
         </div>
       `;}).join("") || `<div class="empty"><p>Sin movimientos registrados.</p></div>`}
     </div>
   `;
+}
+function saveBsRate(){
+  const val = parseFloat(document.getElementById("bsRateInput").value) || 0;
+  DATA.config.bsRate = val;
+  DATA.config.bsRateUpdated = todayISO();
+  DATA.config.bsRateSource = "manual";
+  save(); toast(val ? "Tasa actualizada" : "Tasa quitada — se mostrará solo en USD"); render();
+}
+function fetchAutoRate(){
+  toast("Buscando la tasa del día…");
+  fetch("https://ve.dolarapi.com/v1/dolares/oficial")
+    .then(r=>{ if(!r.ok) throw new Error("respuesta no válida"); return r.json(); })
+    .then(data=>{
+      const val = Number(data && data.promedio);
+      if(!val || isNaN(val)) throw new Error("formato inesperado");
+      DATA.config.bsRate = val;
+      DATA.config.bsRateUpdated = todayISO();
+      DATA.config.bsRateSource = "auto";
+      save(); toast("Tasa BCV actualizada: Bs "+val); render();
+    })
+    .catch(err=>{
+      console.error("No se pudo traer la tasa automática:", err);
+      toast("No se pudo traer la tasa automática (sin internet o el servicio no respondió). Ingrésala manualmente abajo.");
+    });
 }
 function openFinanceForm(){
   const opts = DATA.members.filter(m=>m.active).map(m=>`<option value="${esc(m.name)}">${esc(m.name)}</option>`).join("");
@@ -2539,11 +2800,19 @@ function saveFinance(){
 
 /* ---------- REPORTE DE FINANZAS ---------- */
 function openReportForm(){
-  const thisMonth = new Date().toISOString().slice(0,7);
   openModal(`
     <h3>Generar reporte</h3>
-    <div class="row">
-      <div class="field"><label>Desde</label><input type="date" id="repFrom" value="${thisMonth}-01"></div>
+    <div class="field"><label>Periodo</label>
+      <select id="repPeriod" onchange="onReportPeriodChange()">
+        <option value="semanal">Semanal (últimos 7 días)</option>
+        <option value="mensual" selected>Mensual (mes actual)</option>
+        <option value="trimestral">Trimestral (últimos 3 meses)</option>
+        <option value="anual">Anual (año actual)</option>
+        <option value="personalizado">Personalizado</option>
+      </select>
+    </div>
+    <div class="row" id="repCustomDates" style="display:none;">
+      <div class="field"><label>Desde</label><input type="date" id="repFrom" value="${todayISO().slice(0,7)}-01"></div>
       <div class="field"><label>Hasta</label><input type="date" id="repTo" value="${todayISO()}"></div>
     </div>
     <div class="modal-actions">
@@ -2552,9 +2821,29 @@ function openReportForm(){
     </div>
   `);
 }
+function onReportPeriodChange(){
+  const p = document.getElementById("repPeriod").value;
+  document.getElementById("repCustomDates").style.display = p==="personalizado" ? "flex" : "none";
+}
+function periodRange(period){
+  const today = new Date(todayISO()+"T00:00:00");
+  let from = new Date(today);
+  if(period==="semanal"){ from.setDate(today.getDate()-6); }
+  else if(period==="mensual"){ from = new Date(today.getFullYear(), today.getMonth(), 1); }
+  else if(period==="trimestral"){ from = new Date(today.getFullYear(), today.getMonth()-2, 1); }
+  else if(period==="anual"){ from = new Date(today.getFullYear(), 0, 1); }
+  return { from: from.toISOString().slice(0,10), to: todayISO() };
+}
 function buildReport(){
-  const from = document.getElementById("repFrom").value;
-  const to = document.getElementById("repTo").value;
+  const period = document.getElementById("repPeriod").value;
+  let from, to;
+  if(period==="personalizado"){
+    from = document.getElementById("repFrom").value;
+    to = document.getElementById("repTo").value;
+  } else {
+    const r = periodRange(period);
+    from = r.from; to = r.to;
+  }
   const items = DATA.finances.filter(f=> f.date>=from && f.date<=to).sort((a,b)=> a.date.localeCompare(b.date));
   const entradas = items.filter(f=>f.direction!=="salida").reduce((s,f)=>s+Number(f.amount||0),0);
   const salidas = items.filter(f=>f.direction==="salida").reduce((s,f)=>s+Number(f.amount||0),0);
@@ -2562,15 +2851,16 @@ function buildReport(){
   const byType = {};
   items.forEach(f=>{ byType[f.type] = (byType[f.type]||0) + (f.direction==="salida"? -1:1)*Number(f.amount||0); });
 
+  const bs = (usd)=> Number(DATA.config.bsRate||0) ? " (Bs "+(Number(usd)*Number(DATA.config.bsRate)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+")" : "";
   const rowsHtml = items.map(f=>`
     <tr>
       <td>${fmtDateShort(f.date)}</td>
       <td>${f.direction==="salida"?"Salida":"Entrada"}</td>
       <td>${esc(f.type)}</td>
       <td>${esc(f.member||f.note||"—")}</td>
-      <td style="text-align:right; color:${f.direction==="salida"?"#B3452C":"#3F7A54"};">${f.direction==="salida"?"-":"+"}$${Number(f.amount).toLocaleString()}</td>
+      <td style="text-align:right; color:${f.direction==="salida"?"#B3452C":"#3F7A54"};">${f.direction==="salida"?"-":"+"}$${Number(f.amount).toLocaleString()}${bs(f.amount)}</td>
     </tr>`).join("");
-  const typeRowsHtml = Object.entries(byType).map(([t,v])=>`<tr><td>${esc(t)}</td><td style="text-align:right;">$${v.toLocaleString()}</td></tr>`).join("");
+  const typeRowsHtml = Object.entries(byType).map(([t,v])=>`<tr><td>${esc(t)}</td><td style="text-align:right;">$${v.toLocaleString()}${bs(v)}</td></tr>`).join("");
 
   const reportHtml = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
   <title>Reporte financiero — ${DATA.config.churchName}</title>
@@ -2588,9 +2878,9 @@ function buildReport(){
     <h1>Reporte de diezmos y ofrendas</h1>
     <div class="sub">${esc(DATA.config.churchName)} · Del ${fmtDate(from)} al ${fmtDate(to)} · Generado por ${esc(SESSION.name)}</div>
     <div class="totals">
-      <div class="box"><div class="n" style="color:#3F7A54;">$${entradas.toLocaleString()}</div><div class="l">Entradas</div></div>
-      <div class="box"><div class="n" style="color:#B3452C;">$${salidas.toLocaleString()}</div><div class="l">Salidas</div></div>
-      <div class="box"><div class="n">$${balance.toLocaleString()}</div><div class="l">Balance</div></div>
+      <div class="box"><div class="n" style="color:#3F7A54;">$${entradas.toLocaleString()}${bs(entradas)}</div><div class="l">Entradas</div></div>
+      <div class="box"><div class="n" style="color:#B3452C;">$${salidas.toLocaleString()}${bs(salidas)}</div><div class="l">Salidas</div></div>
+      <div class="box"><div class="n">$${balance.toLocaleString()}${bs(balance)}</div><div class="l">Balance</div></div>
     </div>
     <h3>Resumen por categoría</h3>
     <table>${typeRowsHtml || "<tr><td>Sin movimientos en el periodo</td></tr>"}</table>
@@ -2606,10 +2896,10 @@ function buildReport(){
 
   const waText = `📊 *Reporte de finanzas — ${DATA.config.churchName}*\n`+
     `Del ${fmtDate(from)} al ${fmtDate(to)}\n\n`+
-    `🔺 Entradas: $${entradas.toLocaleString()}\n`+
-    `🔻 Salidas: $${salidas.toLocaleString()}\n`+
-    `💰 Balance: $${balance.toLocaleString()}\n\n`+
-    Object.entries(byType).map(([t,v])=> `• ${t}: $${v.toLocaleString()}`).join("\n");
+    `🔺 Entradas: $${entradas.toLocaleString()}${bs(entradas)}\n`+
+    `🔻 Salidas: $${salidas.toLocaleString()}${bs(salidas)}\n`+
+    `💰 Balance: $${balance.toLocaleString()}${bs(balance)}\n\n`+
+    Object.entries(byType).map(([t,v])=> `• ${t}: $${v.toLocaleString()}${bs(v)}`).join("\n");
 
   closeModal();
   openModal(`
@@ -2803,6 +3093,45 @@ function openReminders(){
 function toggleRemind(id, val){ const e = DATA.events.find(x=>x.id===id); if(e){ e.remind = val; save(); } }
 document.getElementById('bellBtn').addEventListener('click', openReminders);
 
+/* ---------- BOTÓN DE INSTALAR LA APP ---------- */
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.style.display = "inline-block";
+});
+window.addEventListener('appinstalled', ()=>{
+  deferredInstallPrompt = null;
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.style.display = "none";
+  toast("¡App instalada! 📲");
+});
+document.getElementById('installBtn').addEventListener('click', async ()=>{
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    document.getElementById('installBtn').style.display = "none";
+  } else {
+    // iPhone/Safari no soporta instalación automática: mostramos instrucciones.
+    openModal(`
+      <h3>📲 Instalar en iPhone</h3>
+      <p style="font-size:13.5px; line-height:1.6;">
+        1. Toca el botón de <b>Compartir</b> (el cuadrito con la flecha hacia arriba), abajo en Safari.<br>
+        2. Desliza y toca <b>"Agregar a pantalla de inicio"</b>.<br>
+        3. Toca <b>"Agregar"</b>.
+      </p>
+      <div class="modal-actions"><button class="btn gold" onclick="closeModal()">Entendido</button></div>
+    `);
+  }
+});
+// Detecta iPhone/iPad para mostrar también ahí el botón (Safari no dispara beforeinstallprompt)
+if(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.navigator.standalone){
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.style.display = "inline-block";
+}
+
 /* ============================================================
    INICIO
    ============================================================ */
@@ -2810,6 +3139,11 @@ document.getElementById('bellBtn').addEventListener('click', openReminders);
   applyTheme();
   initFirebase();
 })();
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
+  });
+}
 </script>
 </body>
 </html>
