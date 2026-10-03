@@ -333,7 +333,7 @@ function seedData(){
     config:{
       churchName:"Iglesia Bautista Misionera Hay Vida en Jesús",
       pins:{ pastor:"1234", diacono:"2345", tesoreria:"3456" },
-      bsRate: 0, bsRateUpdated: null, bsRateSource: null
+      bsRate: 0, usdtRate: 0, bsRateUpdated: null, bsRateSource: null
     },
     users:[],
     members:[],
@@ -512,6 +512,7 @@ function migrate(d){
   d.config = d.config || { churchName:"Iglesia Bautista Misionera Hay Vida en Jesús", pins:{pastor:"1234", diacono:"2345", tesoreria:"3456"} };
   d.config.pins = d.config.pins || {pastor:"1234", diacono:"2345", tesoreria:"3456"};
   if(d.config.bsRate===undefined) d.config.bsRate = 0;
+  if(d.config.usdtRate===undefined) d.config.usdtRate = 0;
   if(d.config.bsRateUpdated===undefined) d.config.bsRateUpdated = null;
   if(d.config.bsRateSource===undefined) d.config.bsRateSource = null;
   d.users = Array.isArray(d.users) ? d.users : [];
@@ -848,9 +849,12 @@ function initials(name){
 function fmtUsdBs(amount){
   const usd = "$"+Number(amount).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
   const rate = Number(DATA.config.bsRate||0);
-  if(!rate) return usd;
-  const bs = (Number(amount)*rate).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
-  return usd + ` <span style="opacity:.65; font-size:.85em;">(Bs ${bs})</span>`;
+  const usdtRate = Number(DATA.config.usdtRate||0);
+  if(!rate && !usdtRate) return usd;
+  const parts = [];
+  if(rate) parts.push("Bs "+(Number(amount)*rate).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2})+" oficial");
+  if(usdtRate) parts.push("Bs "+(Number(amount)*usdtRate).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2})+" USDT");
+  return usd + ` <span style="opacity:.65; font-size:.85em;">(${parts.join(" · ")})</span>`;
 }
 // Mantiene sincronizados los datos de perfil (cumpleaños, foto, teléfono) entre
 // la cuenta de usuario y el directorio de miembros, que es la fuente única
@@ -2754,14 +2758,23 @@ function viewFinanzas(){
   return `
     <div class="section-head"><h2>Diezmos y ofrendas</h2><p>Entradas, salidas y balance de la iglesia, en USD con equivalente en Bs. Solo visible para Pastor y Tesorería.</p></div>
     <div class="card">
-      <h3>💱 Tasa del día (Bs por $1)</h3>
+      <h3>💱 Tasas del día (Bs por $1)</h3>
       <div class="row">
-        <input type="number" id="bsRateInput" value="${rate||""}" placeholder="Ej. 45.30" min="0" step="0.01">
-        <button class="btn ghost small" onclick="saveBsRate()">Guardar tasa</button>
+        <div class="field" style="margin-bottom:0;">
+          <label>Tasa oficial (BCV)</label>
+          <input type="number" id="bsRateInput" value="${rate||""}" placeholder="Ej. 45.30" min="0" step="0.01">
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Tasa USDT</label>
+          <input type="number" id="usdtRateInput" value="${Number(DATA.config.usdtRate||0)||""}" placeholder="Ej. 52.80" min="0" step="0.01">
+        </div>
       </div>
-      <button class="btn ghost small" style="margin-top:8px;" onclick="fetchAutoRate()">🔄 Traer tasa del día automáticamente</button>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn ghost small" onclick="saveBsRate()">Guardar tasas</button>
+        <button class="btn ghost small" onclick="fetchAutoRate()">🔄 Traer tasa oficial automáticamente</button>
+      </div>
       <p id="rateUpdatedNote" style="font-size:11px; color:var(--ink-soft); margin-top:6px;">${DATA.config.bsRateUpdated ? "Última actualización: "+fmtDate(DATA.config.bsRateUpdated)+(DATA.config.bsRateSource==="auto"?" (automática, BCV)":" (manual)") : ""}</p>
-      ${!rate ? `<p style="font-size:11.5px; color:var(--ink-soft); margin-top:8px;">Sin tasa cargada, los montos se muestran solo en USD. Actualízala cada día que cambie.</p>` : ""}
+      ${!rate && !Number(DATA.config.usdtRate||0) ? `<p style="font-size:11.5px; color:var(--ink-soft); margin-top:8px;">Sin tasas cargadas, los montos se muestran solo en USD. Actualízalas cada día que cambien.</p>` : ""}
     </div>
     <div class="stat-grid">
       <div class="stat"><div class="n" style="color:var(--good); font-size:19px;">${fmtUsdBs(entradas)}</div><div class="l">Entradas totales</div></div>
@@ -2798,10 +2811,12 @@ function viewFinanzas(){
 }
 function saveBsRate(){
   const val = parseFloat(document.getElementById("bsRateInput").value) || 0;
+  const usdtVal = parseFloat(document.getElementById("usdtRateInput").value) || 0;
   DATA.config.bsRate = val;
+  DATA.config.usdtRate = usdtVal;
   DATA.config.bsRateUpdated = todayISO();
   DATA.config.bsRateSource = "manual";
-  save(); toast(val ? "Tasa actualizada" : "Tasa quitada — se mostrará solo en USD"); render();
+  save(); toast("Tasas actualizadas"); render();
 }
 function fetchAutoRate(){
   toast("Buscando la tasa del día…");
@@ -2923,7 +2938,12 @@ function buildReport(){
   const byType = {};
   items.forEach(f=>{ byType[f.type] = (byType[f.type]||0) + (f.direction==="salida"? -1:1)*Number(f.amount||0); });
 
-  const bs = (usd)=> Number(DATA.config.bsRate||0) ? " (Bs "+(Number(usd)*Number(DATA.config.bsRate)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+")" : "";
+  const bs = (usd)=>{
+    const parts = [];
+    if(Number(DATA.config.bsRate||0)) parts.push("Bs "+(Number(usd)*Number(DATA.config.bsRate)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+" oficial");
+    if(Number(DATA.config.usdtRate||0)) parts.push("Bs "+(Number(usd)*Number(DATA.config.usdtRate)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+" USDT");
+    return parts.length ? " ("+parts.join(" · ")+")" : "";
+  };
   const rowsHtml = items.map(f=>`
     <tr>
       <td>${fmtDateShort(f.date)}</td>
