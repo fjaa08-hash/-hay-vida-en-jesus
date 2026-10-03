@@ -2,14 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#152C42">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Hay Vida en Jesús">
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
-<link rel="icon" href="./icon-192.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hay Vida en Jesús — App de la Iglesia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1129,7 +1122,10 @@ function viewAsistenciaReportes(){
         <div class="list-item"><div class="main"><div class="ttl">${esc(act)}</div><div class="meta">${v.count} servicio(s) registrados</div></div>
         <div class="amt in">${(v.sum/v.count).toFixed(1)} prom.</div></div>
       `).join("") || `<div class="empty"><p>Sin datos en este periodo.</p></div>`}
-      <button class="btn ghost small" style="margin-top:10px;" onclick="shareAttendanceReportWA('${attReportPeriod}')">📲 Compartir resumen por WhatsApp</button>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn ghost small" onclick="shareAttendanceReportWA('${attReportPeriod}')">📲 Compartir por WhatsApp</button>
+        <button class="btn gold small" onclick="downloadAttendanceReportGeneral()">⬇️ Descargar reporte general</button>
+      </div>
     </div>
     <div class="card">
       <h3>👤 Reporte individual</h3>
@@ -1139,8 +1135,84 @@ function viewAsistenciaReportes(){
         </select>
       </div>
       ${individualHtml}
+      ${attReportMember ? `<button class="btn gold small" style="margin-top:10px;" onclick="downloadAttendanceReportIndividual()">⬇️ Descargar reporte de ${esc(attReportMember)}</button>` : ""}
     </div>
   `;
+}
+function buildPrintableShell(title, bodyHtml){
+  return `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${esc(title)}</title>
+  <style>
+    body{font-family:Georgia,serif; max-width:720px; margin:30px auto; padding:0 18px; color:#1E2530;}
+    h1{font-size:20px; margin-bottom:2px;} .sub{color:#5B6472; font-size:13px; margin-bottom:18px;}
+    .totals{display:flex; gap:14px; margin:18px 0; flex-wrap:wrap;}
+    .box{border:1px solid #DED3B8; border-radius:10px; padding:10px 16px; text-align:center;}
+    .box .n{font-size:20px; font-weight:bold;} .box .l{font-size:11px; color:#5B6472;}
+    table{width:100%; border-collapse:collapse; margin-top:10px; font-size:13px;}
+    th, td{border-bottom:1px solid #DED3B8; padding:7px 6px; text-align:left;}
+    th{background:#F1EADA;}
+    @media print{ button{display:none;} }
+  </style></head><body>
+    ${bodyHtml}
+    <button onclick="window.print()" style="margin-top:20px; padding:10px 16px; border-radius:8px; border:none; background:#C79A3E; color:#382a09; font-weight:bold; cursor:pointer;">🖨️ Imprimir / Guardar como PDF</button>
+  </body></html>`;
+}
+function downloadAttendanceReportGeneral(){
+  const range = periodRange(attReportPeriod);
+  const dates = Object.keys(DATA.attendance).filter(d=> d>=range.from && d<=range.to).sort();
+  const byActivity = {};
+  dates.forEach(d=>{
+    const rec = DATA.attendance[d];
+    const act = rec.activity || "General";
+    byActivity[act] = byActivity[act] || {sum:0, count:0};
+    byActivity[act].sum += (rec.present||[]).length;
+    byActivity[act].count += 1;
+  });
+  const totalPresences = dates.reduce((s,d)=> s + (DATA.attendance[d].present||[]).length, 0);
+  const avgGeneral = dates.length ? (totalPresences/dates.length).toFixed(1) : "0";
+  const byActivityRows = Object.entries(byActivity).map(([act,v])=>`<tr><td>${esc(act)}</td><td style="text-align:right;">${(v.sum/v.count).toFixed(1)}</td><td style="text-align:right;">${v.count}</td></tr>`).join("");
+  const byMemberRows = DATA.members.filter(m=>m.active).map(m=>{
+    const attended = dates.filter(d=> (DATA.attendance[d].present||[]).includes(m.id)).length;
+    const pct = dates.length ? Math.round((attended/dates.length)*100) : 0;
+    return `<tr><td>${esc(m.name)}</td><td style="text-align:right;">${attended}/${dates.length}</td><td style="text-align:right;">${pct}%</td></tr>`;
+  }).join("");
+  const body = `
+    <h1>Reporte general de asistencia</h1>
+    <div class="sub">${esc(DATA.config.churchName)} · Del ${fmtDate(range.from)} al ${fmtDate(range.to)} · Generado por ${esc(SESSION.name)}</div>
+    <div class="totals">
+      <div class="box"><div class="n">${dates.length}</div><div class="l">Servicios registrados</div></div>
+      <div class="box"><div class="n">${avgGeneral}</div><div class="l">Promedio general</div></div>
+    </div>
+    <h3>Promedio por actividad</h3>
+    <table><tr><th>Actividad</th><th style="text-align:right;">Promedio</th><th style="text-align:right;">Servicios</th></tr>${byActivityRows || "<tr><td colspan='3'>Sin datos</td></tr>"}</table>
+    <h3>Asistencia por miembro</h3>
+    <table><tr><th>Miembro</th><th style="text-align:right;">Asistió</th><th style="text-align:right;">%</th></tr>${byMemberRows || "<tr><td colspan='3'>Sin miembros activos</td></tr>"}</table>
+  `;
+  const blob = new Blob([buildPrintableShell("Reporte de asistencia", body)], {type:"text/html"});
+  window.open(URL.createObjectURL(blob), "_blank");
+}
+function downloadAttendanceReportIndividual(){
+  if(!attReportMember){ toast("Selecciona un hermano primero"); return; }
+  const m = DATA.members.find(x=>x.name===attReportMember); if(!m) return;
+  const range = periodRange(attReportPeriod);
+  const dates = Object.keys(DATA.attendance).filter(d=> d>=range.from && d<=range.to).sort();
+  const attendedDates = dates.filter(d=> (DATA.attendance[d].present||[]).includes(m.id));
+  const pct = dates.length ? Math.round((attendedDates.length/dates.length)*100) : 0;
+  const rows = dates.map(d=>{
+    const went = attendedDates.includes(d);
+    return `<tr><td>${fmtDate(d)}</td><td>${esc(DATA.attendance[d].activity||"General")}</td><td style="color:${went?"#3F7A54":"#B3452C"};">${went?"✓ Asistió":"✗ Faltó"}</td></tr>`;
+  }).join("");
+  const body = `
+    <h1>Reporte individual de asistencia</h1>
+    <div class="sub">${esc(m.name)} · ${esc(DATA.config.churchName)} · Del ${fmtDate(range.from)} al ${fmtDate(range.to)}</div>
+    <div class="totals">
+      <div class="box"><div class="n">${attendedDates.length}/${dates.length}</div><div class="l">Servicios asistidos</div></div>
+      <div class="box"><div class="n">${pct}%</div><div class="l">Porcentaje de asistencia</div></div>
+    </div>
+    <h3>Detalle</h3>
+    <table><tr><th>Fecha</th><th>Actividad</th><th>Estado</th></tr>${rows || "<tr><td colspan='3'>Sin servicios registrados en el periodo</td></tr>"}</table>
+  `;
+  const blob = new Blob([buildPrintableShell("Reporte individual de asistencia", body)], {type:"text/html"});
+  window.open(URL.createObjectURL(blob), "_blank");
 }
 function setAttReportPeriod(v){ attReportPeriod = v; render(); }
 function setAttReportMember(v){ attReportMember = v; render(); }
@@ -3139,11 +3211,6 @@ if(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.navigator.standalone)
   applyTheme();
   initFirebase();
 })();
-if("serviceWorker" in navigator){
-  window.addEventListener("load", ()=>{
-    navigator.serviceWorker.register("./service-worker.js").catch(()=>{});
-  });
-}
 </script>
 </body>
 </html>
